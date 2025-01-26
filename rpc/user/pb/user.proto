@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package user;
+option go_package="./user";
+
+message RegisterRequest {
+  string userAccount = 1;
+  string userPassword = 2;
+  string checkPassword = 3;
+}
+
+message RegisterResponse {
+  int64 id = 1;
+}
+
+message LoginRequest {
+  string userAccount = 1;
+  string userPassword = 2;
+}
+
+message LoginResponse {
+  int64 id = 1;
+  string userAccount = 2;
+  string userName = 3;
+  string userAvatar = 4;
+  string userProfile = 5;
+  string userRole = 6;
+  string accessToken = 7;
+}
+
+message GetUserByIdRequest {
+    int64 id = 1;
+}
+
+message GetUserByIdResponse {
+    int64 id = 1;
+    string userAccount = 2;
+    string userName = 3;
+    string userAvatar = 4;
+    string userProfile = 5;
+    string userRole = 6;
+}
+
+service UserService {
+    rpc Register(RegisterRequest) returns(RegisterResponse);
+    rpc Login(LoginRequest) returns(LoginResponse);
+    rpc GetUserById(GetUserByIdRequest) returns(GetUserByIdResponse);
+}
