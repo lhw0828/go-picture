@@ -2,13 +2,14 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"picture/api/internal/svc"
 	"picture/api/internal/types"
 	"picture/rpc/user/pb/user"
 
-	"github.com/golang-jwt/jwt/v4" // 添加这行导入
+	// 添加这行导入
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,25 +29,31 @@ func NewGetCurrentUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 }
 
 func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.LoginResp, err error) {
-	// 从上下文中获取 JWT 解析后的 claims
-	claims, ok := l.ctx.Value("claims").(jwt.MapClaims)
-	if !ok {
-		l.Logger.Error("Failed to get claims from context")
-		return nil, fmt.Errorf("获取用户信息失败")
-	}
-
-	// 从 claims 中获取 userId
-	userIdFloat, ok := claims["userId"].(float64)
-	if !ok {
-		l.Logger.Error("Failed to get userId from claims")
+	// 从上下文中获取 userId
+	userId := l.ctx.Value("userId")
+	if userId == nil {
+		l.Logger.Error("Failed to get userId from context")
 		return nil, fmt.Errorf("获取用户ID失败")
 	}
 
-	userId := int64(userIdFloat)
-	l.Logger.Infof("Getting user info for userId: %d", userId)
+	// 处理 json.Number 类型
+	var id int64
+	switch v := userId.(type) {
+	case json.Number:
+		id, err = v.Int64()
+		if err != nil {
+			l.Logger.Errorf("Convert userId error: %v", err)
+			return nil, fmt.Errorf("用户ID格式错误")
+		}
+	default:
+		l.Logger.Errorf("Invalid userId type: %T", userId)
+		return nil, fmt.Errorf("用户ID类型错误")
+	}
+
+	l.Logger.Infof("Getting user info for userId: %d", id)
 
 	res, err := l.svcCtx.UserRpc.GetUserById(l.ctx, &user.GetUserByIdRequest{
-		Id: userId,
+		Id: id,
 	})
 	if err != nil {
 		l.Logger.Errorf("GetUserById failed: %v", err)
