@@ -1,0 +1,85 @@
+syntax = "v1"
+
+info (
+	title:   "空间服务"
+	desc:    "空间管理相关接口"
+	author:  "lhw"
+	version: "v1"
+)
+
+type (
+	CreateSpaceReq {
+		SpaceName  string `json:"spaceName"`
+		SpaceDesc  string `json:"spaceDesc,optional"`
+		SpaceType  string `json:"spaceType"`
+		SpaceLevel string `json:"spaceLevel"`
+	}
+	CreateSpaceResp {
+		Id int64 `json:"id"`
+	}
+	GetSpaceResp {
+		Id            int64  `json:"id"`
+		SpaceName     string `json:"spaceName"`
+		SpaceDesc     string `json:"spaceDesc"`
+		SpaceType     string `json:"spaceType"`
+		SpaceLevel    string `json:"spaceLevel"`
+		UserId        int64  `json:"userId"`
+		TotalCapacity int64  `json:"totalCapacity"`
+		UsedCapacity  int64  `json:"usedCapacity"`
+		CreateTime    string `json:"createTime"`
+		UpdateTime    string `json:"updateTime"`
+	}
+	AddSpaceMemberReq {
+		UserId int64  `json:"userId"`
+		Role   string `json:"role"`
+	}
+	AddSpaceMemberResp {
+		Success bool `json:"success"`
+	}
+	SpaceMemberInfo {
+		Id         int64  `json:"id"`
+		UserId     int64  `json:"userId"`
+		UserName   string `json:"userName"`
+		UserAvatar string `json:"userAvatar"`
+		Role       string `json:"role"`
+		JoinTime   string `json:"joinTime"`
+	}
+	ListSpaceMembersResp {
+		Members []SpaceMemberInfo `json:"members"`
+	}
+	UpdateSpaceUsageReq {
+		Size      int64  `json:"size"`
+		Operation string `json:"operation"`
+	}
+	UpdateSpaceUsageResp {
+		Success           bool  `json:"success"`
+		RemainingCapacity int64 `json:"remainingCapacity"`
+	}
+)
+
+@server (
+	jwt:    Auth
+	prefix: api/v1
+)
+service space {
+	@doc "创建空间"
+	@handler createSpace
+	post /space (CreateSpaceReq) returns (CreateSpaceResp)
+
+	@doc "获取空间信息"
+	@handler getSpace
+	get /space/:id returns (GetSpaceResp)
+
+	@doc "添加空间成员"
+	@handler addSpaceMember
+	post /space/:id/member (AddSpaceMemberReq) returns (AddSpaceMemberResp)
+
+	@doc "获取空间成员列表"
+	@handler listSpaceMembers
+	get /space/:id/members returns (ListSpaceMembersResp)
+
+	@doc "更新空间使用容量"
+	@handler updateSpaceUsage
+	put /space/:id/usage (UpdateSpaceUsageReq) returns (UpdateSpaceUsageResp)
+}
+
