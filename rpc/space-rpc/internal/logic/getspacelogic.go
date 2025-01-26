@@ -27,20 +27,25 @@ func NewGetSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpace
 
 // 获取空间信息
 func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.GetSpaceResponse, error) {
+
+	// 打印请求参数
+	l.Logger.Infof("获取空间信息请求: %+v", in)
+
 	spaceInfo, err := l.svcCtx.SpaceDao.FindById(in.Id)
 	if err != nil {
-		l.Logger.Errorf("Find space error: %v", err)
-		return nil, err
+		l.Logger.Errorf("获取空间信息失败，Find space error: %v", err)
+		return nil, errorx.NewDefaultError("获取空间信息失败")
 	}
 	if spaceInfo == nil {
+		l.Logger.Infof("空间不存在, id: %d", in.Id)
 		return nil, errorx.NewDefaultError("空间不存在")
 	}
 
 	return &space.GetSpaceResponse{
 		Id:         spaceInfo.Id,
 		SpaceName:  spaceInfo.SpaceName,
-		SpaceLevel: int32(spaceInfo.SpaceLevel), // 转换为 int32
-		SpaceType:  int32(spaceInfo.SpaceType),  // 转换为 int32
+		SpaceLevel: int32(spaceInfo.SpaceLevel),
+		SpaceType:  int32(spaceInfo.SpaceType),
 		MaxSize:    spaceInfo.MaxSize,
 		MaxCount:   spaceInfo.MaxCount,
 		TotalSize:  spaceInfo.TotalSize,
@@ -49,4 +54,5 @@ func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.GetSpaceResp
 		CreateTime: spaceInfo.CreateTime.Format(time.RFC3339),
 		UpdateTime: spaceInfo.UpdateTime.Format(time.RFC3339),
 	}, nil
+
 }

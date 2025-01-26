@@ -5,6 +5,7 @@ import (
 	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -36,14 +37,24 @@ func (d *SpaceDao) Insert(space *model.Space) (sql.Result, error) {
 
 func (d *SpaceDao) FindById(id int64) (*model.Space, error) {
 	var space model.Space
-	query := `select * from space where id = ? and isDelete = 0 limit 1`
+
+	// 打印 SQL 语句和参数，方便调试
+	query := `SELECT * FROM space WHERE id = ? AND isDelete = 0`
+	logx.Infof("SQL: %s, params: %d", query, id)
+
 	err := d.conn.QueryRow(&space, query, id)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			logx.Infof("空间不存在, id: %d", id)
+			return nil, nil
+		}
+		logx.Errorf("查询空间失败: %v", err)
 		return nil, err
 	}
+
+	// 打印查询结果，方便调试
+	logx.Infof("查询结果: %+v", space)
+
 	return &space, nil
 }
 
