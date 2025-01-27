@@ -34,7 +34,7 @@ func (l *ListSpaceMembersLogic) ListSpaceMembers(in *space.ListSpaceMembersReque
 		return nil, err
 	}
 	if spaceInfo == nil {
-		return nil, errorx.NewDefaultError("空间不存在")
+		return nil, errorx.NewCodeError(errorx.SpaceNotExist, "空间不存在")
 	}
 
 	// 获取成员列表

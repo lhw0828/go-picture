@@ -6,6 +6,7 @@ import (
 	"picture/api/user-api/internal/logic"
 	"picture/api/user-api/internal/svc"
 	"picture/api/user-api/internal/types"
+	"picture/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -24,7 +25,7 @@ func registerHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, response.Success(resp))
 		}
 	}
 }

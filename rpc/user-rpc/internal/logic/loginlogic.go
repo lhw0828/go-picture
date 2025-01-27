@@ -33,10 +33,10 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 
 	// 参数校验
 	if len(in.UserAccount) < 4 {
-		return nil, errorx.NewDefaultError("账号长度不能小于4位")
+		return nil, errorx.NewCodeError(errorx.LengthLess4, "账号长度不能小于4位")
 	}
 	if len(in.UserPassword) < 8 {
-		return nil, errorx.NewDefaultError("密码长度不能小于8位")
+		return nil, errorx.NewCodeError(errorx.LengthLess8, "密码长度不能小于8位")
 	}
 
 	// 查询用户
@@ -46,19 +46,19 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		return nil, err
 	}
 	if userModel == nil {
-		return nil, errorx.NewDefaultError("用户不存在")
+		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
 	}
 
 	// 校验密码
 	if userModel.UserPassword != utils.EncryptPassword(in.UserPassword) {
-		return nil, errorx.NewDefaultError("密码错误")
+		return nil, errorx.NewCodeError(errorx.PasswordWrong, "密码错误")
 	}
 
 	// 生成token
 	token, err := l.generateToken(userModel.Id)
 	if err != nil {
 		l.Logger.Errorf("Generate token error: %v", err)
-		return nil, errorx.NewDefaultError("生成token失败")
+		return nil, errorx.NewCodeError(errorx.GenerateTokenFail, "生成token失败")
 	}
 
 	// 添加返回日志

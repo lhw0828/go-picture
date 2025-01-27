@@ -34,12 +34,12 @@ func (l *AddSpaceMemberLogic) AddSpaceMember(in *space.AddSpaceMemberRequest) (*
 		return nil, err
 	}
 	if spaceInfo == nil {
-		return nil, errorx.NewDefaultError("空间不存在")
+		return nil, errorx.NewCodeError(errorx.SpaceNotExist, "空间不存在")
 	}
 
 	// 检查是否为团队空间
 	if spaceInfo.SpaceType != 1 {
-		return nil, errorx.NewDefaultError("非团队空间不能添加成员")
+		return nil, errorx.NewCodeError(errorx.NotTeamMember, "非团队空间不能添加成员")
 	}
 
 	// 检查用户是否已经是成员
@@ -48,7 +48,7 @@ func (l *AddSpaceMemberLogic) AddSpaceMember(in *space.AddSpaceMemberRequest) (*
 		return nil, err
 	}
 	if existMember != nil {
-		return nil, errorx.NewDefaultError("用户已是空间成员")
+		return nil, errorx.NewCodeError(errorx.AlreadyTeamMember, "用户已是空间成员")
 	}
 
 	// 添加成员
@@ -63,7 +63,7 @@ func (l *AddSpaceMemberLogic) AddSpaceMember(in *space.AddSpaceMemberRequest) (*
 	_, err = l.svcCtx.SpaceMemberDao.Insert(member)
 	if err != nil {
 		l.Logger.Errorf("Insert space member error: %v", err)
-		return nil, errorx.NewDefaultError("添加成员失败")
+		return nil, errorx.NewCodeError(errorx.AddTeamMemberFail, "添加成员失败")
 	}
 
 	return &space.AddSpaceMemberResponse{

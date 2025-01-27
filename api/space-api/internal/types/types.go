@@ -4,6 +4,7 @@
 package types
 
 type AddSpaceMemberReq struct {
+	SpaceId   int64  `json:"spaceId"`
 	UserId    int64  `json:"userId"`
 	SpaceRole string `json:"spaceRole"` // viewer/editor/admin
 }
@@ -12,11 +13,15 @@ type AddSpaceMemberResp struct {
 	Success bool `json:"success"`
 }
 
+type CommonResp struct {
+	Code    int32  `json:"code"`
+	Message string `json:"message"`
+}
+
 type CreateSpaceReq struct {
 	SpaceName  string `json:"spaceName"`
-	SpaceDesc  string `json:"spaceDesc,optional"`
-	SpaceType  string `json:"spaceType"`  // private/team
-	SpaceLevel string `json:"spaceLevel"` // normal/pro/premium
+	SpaceType  int32  `json:"spaceType"`  // 0-私有 1-团队
+	SpaceLevel int32  `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
 }
 
 type CreateSpaceResp struct {
@@ -24,35 +29,89 @@ type CreateSpaceResp struct {
 }
 
 type GetSpaceReq struct {
-	Id int64 `path:"id, optional"` // 从 URL 路径中获取空间 ID
+	Id int64 `path:"id"`
 }
 
 type GetSpaceResp struct {
 	Id         int64  `json:"id"`
 	SpaceName  string `json:"spaceName"`
-	SpaceType  string `json:"spaceType"`  // private/team
-	SpaceLevel string `json:"spaceLevel"` // normal/pro/premium
-	MaxSize    int64  `json:"maxSize"`    // 最大总大小
-	MaxCount   int64  `json:"maxCount"`   // 最大数量
-	TotalSize  int64  `json:"totalSize"`  // 当前总大小
-	TotalCount int64  `json:"totalCount"` // 当前数量
+	SpaceType  int32  `json:"spaceType"`  // 0-私有 1-团队
+	SpaceLevel int32  `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
+	MaxSize    int64  `json:"maxSize"`
+	MaxCount   int64  `json:"maxCount"`
+	TotalSize  int64  `json:"totalSize"`
+	TotalCount int64  `json:"totalCount"`
 	UserId     int64  `json:"userId"`
 	CreateTime string `json:"createTime"`
 	UpdateTime string `json:"updateTime"`
+}
+
+type ListSpaceMemberReq struct {
+	SpaceId  int64  `path:"spaceId"`
+	Current  int64  `form:"current,default=1"`
+	PageSize int64  `form:"pageSize,default=10"`
+	Role     string `form:"role,optional"`
+}
+
+type ListSpaceMemberResp struct {
+	List     []SpaceMemberInfo `json:"list"`
+	Total    int64             `json:"total"`
+	Current  int64             `json:"current"`
+	PageSize int64             `json:"pageSize"`
 }
 
 type ListSpaceMembersResp struct {
 	Members []SpaceMemberInfo `json:"members"`
 }
 
-type SpaceMemberInfo struct {
+type ListSpaceReq struct {
+	Current   int64  `form:"current,default=1"`
+	PageSize  int64  `form:"pageSize,default=10"`
+	SpaceName string `form:"spaceName,optional"` // 支持模糊搜索
+	SpaceType *int   `form:"spaceType,optional"` // 空间类型
+}
+
+type ListSpaceResp struct {
+	List     []SpaceInfo `json:"list"`
+	Total    int64       `json:"total"`
+	Current  int64       `json:"current"`
+	PageSize int64       `json:"pageSize"`
+}
+
+type RemoveSpaceMemberReq struct {
+	SpaceId int64 `json:"spaceId"`
+	UserId  int64 `json:"userId"`
+}
+
+type SpaceInfo struct {
 	Id         int64  `json:"id"`
-	SpaceId    int64  `json:"spaceId"`
+	SpaceName  string `json:"spaceName"`
+	SpaceType  int32  `json:"spaceType"`
+	SpaceLevel int32  `json:"spaceLevel"`
+	MaxSize    int64  `json:"maxSize"`
+	MaxCount   int64  `json:"maxCount"`
+	TotalSize  int64  `json:"totalSize"`
+	TotalCount int64  `json:"totalCount"`
+	UserId     int64  `json:"userId"`
+	CreateTime string `json:"createTime"`
+	UpdateTime string `json:"updateTime"`
+}
+
+type SpaceMemberInfo struct {
 	UserId     int64  `json:"userId"`
 	UserName   string `json:"userName"`
 	UserAvatar string `json:"userAvatar"`
-	SpaceRole  string `json:"spaceRole"`
+	SpaceRole  string `json:"spaceRole"` // 改为 spaceRole
 	CreateTime string `json:"createTime"`
+}
+
+type UpdateSpaceReq struct {
+	Id         int64  `path:"id"`
+	SpaceName  string `json:"spaceName,optional"`
+	SpaceType  int32  `json:"spaceType,optional"`  // 0-私有 1-团队
+	SpaceLevel int32  `json:"spaceLevel,optional"` // 0-普通版 1-专业版 2-旗舰版
+	MaxSize    int64  `json:"maxSize,optional"`
+	MaxCount   int64  `json:"maxCount,optional"`
 }
 
 type UpdateSpaceUsageReq struct {

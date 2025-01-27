@@ -30,13 +30,13 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterResponse, error) {
 	// 参数校验
 	if len(in.UserAccount) < 4 {
-		return nil, errorx.NewDefaultError("账号长度不能小于4位")
+		return nil, errorx.NewCodeError(errorx.LengthLess4, "账号长度不能小于4位")
 	}
 	if len(in.UserPassword) < 8 || len(in.CheckPassword) < 8 {
-		return nil, errorx.NewDefaultError("密码长度不能小于8位")
+		return nil, errorx.NewCodeError(errorx.LengthLess8, "密码长度不能小于8位")
 	}
 	if in.UserPassword != in.CheckPassword {
-		return nil, errorx.NewDefaultError("两次输入的密码不一致")
+		return nil, errorx.NewCodeError(errorx.PasswordNotMatch, "两次输入的密码不一致")
 	}
 
 	// 判断账号是否已存在
@@ -46,7 +46,7 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 		return nil, err
 	}
 	if existUser != nil {
-		return nil, errorx.NewDefaultError("账号已存在")
+		return nil, errorx.NewCodeError(errorx.UserExist, "账号已存在")
 	}
 
 	// 创建用户
@@ -62,13 +62,13 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 	result, err := l.svcCtx.UserDao.Insert(newUser)
 	if err != nil {
 		l.Logger.Errorf("插入到数据库错误，Insert user error: %v", err)
-		return nil, errorx.NewDefaultError("注册失败")
+		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")
 	}
 
 	userId, err := result.LastInsertId()
 	if err != nil {
 		l.Logger.Errorf("获取最近插入用户id失败，Get last insert id error: %v", err)
-		return nil, errorx.NewDefaultError("注册失败")
+		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")
 	}
 
 	l.Logger.Infof("注册用户成功，Register success, userId: %d", userId)

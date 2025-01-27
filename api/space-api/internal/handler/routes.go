@@ -15,6 +15,24 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 更新团队空间使用容量
+				Method:  http.MethodPut,
+				Path:    "/api/v1/space/:id",
+				Handler: updateSpaceHandler(serverCtx),
+			},
+			{
+				// 删除团队空间
+				Method:  http.MethodDelete,
+				Path:    "/api/v1/space/:id",
+				Handler: deleteSpaceHandler(serverCtx),
+			},
+			{
+				// 获取空间列表
+				Method:  http.MethodGet,
+				Path:    "/api/v1/space/list",
+				Handler: listSpaceHandler(serverCtx),
+			},
+			{
 				// 创建空间
 				Method:  http.MethodPost,
 				Path:    "/space",

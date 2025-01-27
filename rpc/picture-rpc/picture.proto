@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package picture;
+option go_package="./picture";
+
+// 图片服务
+service PictureService {
+  // 上传图片
+  rpc UploadPicture(UploadPictureRequest) returns (UploadPictureResponse);
+  // 获取图片信息
+  rpc GetPicture(GetPictureRequest) returns (GetPictureResponse);
+  // 编辑图片
+  rpc EditPicture(EditPictureRequest) returns (EditPictureResponse);
+  // 删除图片
+  rpc DeletePicture(DeletePictureRequest) returns (DeletePictureResponse);
+  // 图片审核
+  rpc ReviewPicture(ReviewPictureRequest) returns (ReviewPictureResponse);
+  // 批量编辑图片
+  rpc EditPictureByBatch(EditPictureByBatchRequest) returns (EditPictureByBatchResponse);
+  // 分页获取图片列表
+  rpc ListPicture(ListPictureRequest) returns (ListPictureResponse);
+}
+
+// 图片基础信息
+message Picture {
+  int64 id = 1;
+  string url = 2;
+  string thumbnail_url = 3;
+  string name = 4;
+  string introduction = 5;
+  string category = 6;
+  repeated string tags = 7;
+  int64 pic_size = 8;
+  int32 pic_width = 9;
+  int32 pic_height = 10;
+  double pic_scale = 11;
+  string pic_format = 12;
+  string pic_color = 13;
+  int64 user_id = 14;
+  int64 space_id = 15;
+  int32 review_status = 16;
+  string review_message = 17;
+  int64 reviewer_id = 18;
+  int64 create_time = 19;
+  int64 edit_time = 20;
+  int64 update_time = 21;
+}
+
+message UploadPictureRequest {
+  bytes file = 1;
+  string picName = 2;
+  int64 spaceId = 3;
+  int64 userId = 4;  // 添加用户ID字段
+}
+
+message UploadPictureResponse {
+  Picture picture = 1;
+}
+
+message GetPictureRequest {
+  int64 id = 1;
+}
+
+message GetPictureResponse {
+  Picture picture = 1;
+}
+
+message EditPictureRequest {
+  int64 id = 1;
+  string name = 2;
+  string introduction = 3;
+  string category = 4;
+  repeated string tags = 5;
+}
+
+message EditPictureResponse {
+  Picture picture = 1;
+}
+
+message DeletePictureRequest {
+  int64 id = 1;
+}
+
+message DeletePictureResponse {
+  bool success = 1;
+}
+
+message ReviewPictureRequest {
+  int64 id = 1;
+  int32 review_status = 2;
+  string review_message = 3;
+  int64 reviewer_id = 4;
+}
+
+message ReviewPictureResponse {
+  Picture picture = 1;
+}
+
+message EditPictureByBatchRequest {
+  repeated int64 picture_id_list = 1;
+  int64 space_id = 2;
+  string category = 3;
+  repeated string tags = 4;
+}
+
+message EditPictureByBatchResponse {
+  bool success = 1;
+}
+
+message ListPictureRequest {
+  int64 current = 1;
+  int64 page_size = 2;
+  string search_text = 3;
+  int64 space_id = 4;
+  string category = 5;
+  repeated string tags = 6;
+  int32 review_status = 7;
+  string sort_field = 8;
+  string sort_order = 9;
+}
+
+message ListPictureResponse {
+  repeated Picture records = 1;
+  int64 total = 2;
+  int64 current = 3;
+  int64 page_size = 4;
+}

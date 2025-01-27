@@ -48,7 +48,7 @@ func (l *GetSpaceAnalysisLogic) GetSpaceAnalysis(in *space.GetSpaceAnalysisReque
 	case "month":
 		days = 30
 	default:
-		return nil, errorx.NewDefaultError("无效的时间范围")
+		return nil, errorx.NewCodeError(errorx.InvalidTimeRange, "无效的时间范围")
 	}
 
 	trends, err := l.svcCtx.SpaceAnalysisDao.GetUsageTrends(in.SpaceId, days)

@@ -23,7 +23,6 @@ func NewListSpaceMembersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 		svcCtx: svcCtx,
 	}
 }
-
 func (l *ListSpaceMembersLogic) ListSpaceMembers() (resp *types.ListSpaceMembersResp, err error) {
 	// todo: add your logic here and delete this line
 

@@ -35,7 +35,7 @@ func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUs
 		return nil, err
 	}
 	if userModel == nil {
-		return nil, errorx.NewDefaultError("用户不存在")
+		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
 	}
 
 	return &user.GetUserByIdResponse{

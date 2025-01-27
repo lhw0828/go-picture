@@ -34,20 +34,20 @@ func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.Cre
 
 	// 参数校验
 	if len(in.SpaceName) < 1 {
-		return nil, errorx.NewDefaultError("空间名称不能为空")
+		return nil, errorx.NewCodeError(errorx.SpaceNameNotNull, "空间名称不能为空")
 	}
 
 	// 设置空间容量
 	var maxSize int64
 	switch in.SpaceLevel {
-	case "normal":
+	case 0:
 		maxSize = 1024 * 1024 * 1024 // 1GB
-	case "pro":
+	case 1:
 		maxSize = 5 * 1024 * 1024 * 1024 // 5GB
-	case "premium":
+	case 2:
 		maxSize = 10 * 1024 * 1024 * 1024 // 10GB
 	default:
-		return nil, errorx.NewDefaultError("无效的空间级别")
+		return nil, errorx.NewCodeError(errorx.InvalidSpaceLevel, "无效的空间级别")
 	}
 
 	// 创建空间
@@ -66,29 +66,16 @@ func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.Cre
 		IsDelete:   sql.NullInt32{Int32: 0, Valid: true},
 	}
 
-	// 根据输入设置空间级别
-	switch in.SpaceLevel {
-	case "pro":
-		newSpace.SpaceLevel = 1
-	case "premium":
-		newSpace.SpaceLevel = 2
-	}
-
-	// 设置空间类型
-	if in.SpaceType == "team" {
-		newSpace.SpaceType = 1
-	}
-
 	result, err := l.svcCtx.SpaceDao.Insert(newSpace)
 	if err != nil {
 		l.Logger.Errorf("Insert space error: %v", err)
-		return nil, errorx.NewDefaultError("创建空间失败")
+		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
 	}
 
 	spaceId, err := result.LastInsertId()
 	if err != nil {
 		l.Logger.Errorf("Get last insert id error: %v", err)
-		return nil, errorx.NewDefaultError("创建空间失败")
+		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
 	}
 
 	return &space.CreateSpaceResponse{
