@@ -55,6 +55,13 @@ const (
 	LengthLess8 = 40601 // 长度小于8
 )
 
+const (
+	DBError       = 1002 // 数据库错误
+	InternalError = 1003 // 内部错误
+	NotFoundError = 1004 // 资源不存在
+	QuotaError    = 1005 // 配额不足
+)
+
 // 错误信息
 const (
 	// 系统级别错误信息

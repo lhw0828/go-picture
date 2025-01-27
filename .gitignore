@@ -36,3 +36,6 @@ build/
 ### VS Code ###
 .vscode/
 __debug*
+*test*
+*.yaml
+*.yml

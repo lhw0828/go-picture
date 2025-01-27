@@ -61,18 +61,25 @@ func (d *SpaceDao) FindById(id int64) (*model.Space, error) {
 func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) error {
 	var query string
 	if operation == "add" {
-		query = `update space set usedCapacity = usedCapacity + ? where id = ? and totalCapacity >= usedCapacity + ?`
+		query = `update space set totalSize = totalSize + ?, totalCount = totalCount + 1 
+                 where id = ? and maxSize >= totalSize + ?`
 	} else {
-		query = `update space set usedCapacity = usedCapacity - ? where id = ? and usedCapacity >= ?`
+		query = `update space set totalSize = totalSize - ?, totalCount = totalCount - 1 
+                 where id = ? and totalSize >= ?`
 	}
+
+	// 打印 SQL 语句和参数，方便调试
+	logx.Infof("SQL: %s, params: [size=%d, spaceId=%d]", query, size, spaceId)
 
 	result, err := d.conn.Exec(query, size, spaceId, size)
 	if err != nil {
+		logx.Errorf("执行更新失败: %v", err)
 		return err
 	}
 
 	affected, err := result.RowsAffected()
 	if err != nil {
+		logx.Errorf("获取影响行数失败: %v", err)
 		return err
 	}
 
@@ -84,11 +91,20 @@ func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) erro
 }
 
 func (d *SpaceDao) GetUsage(spaceId int64) (int64, int64, error) {
-	var space model.Space
+	var space struct {
+		MaxSize   int64 `db:"maxSize"`
+		TotalSize int64 `db:"totalSize"`
+	}
+
 	query := `select maxSize, totalSize from space where id = ? and isDelete = 0`
+	logx.Infof("SQL: %s, params: %d", query, spaceId)
+
 	err := d.conn.QueryRow(&space, query, spaceId)
 	if err != nil {
+		logx.Errorf("获取空间使用量失败: %v", err)
 		return 0, 0, err
 	}
+
+	logx.Infof("查询结果: maxSize=%d, totalSize=%d", space.MaxSize, space.TotalSize)
 	return space.MaxSize, space.TotalSize, nil
 }
