@@ -55,7 +55,6 @@ func (l *CreateSpaceLogic) CreateSpace(req *types.CreateSpaceReq) (resp *types.C
 	// 调用 RPC 服务
 	res, err := l.svcCtx.SpaceRpc.CreateSpace(l.ctx, &space.CreateSpaceRequest{
 		SpaceName:  req.SpaceName,
-		SpaceDesc:  req.SpaceDesc,
 		SpaceType:  req.SpaceType,
 		SpaceLevel: req.SpaceLevel,
 		UserId:     uid,

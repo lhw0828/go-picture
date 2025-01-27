@@ -17,8 +17,7 @@ func getSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		var req types.GetSpaceReq
 
 		// 从路径中获取 ID
-		err := httpx.Parse(r, &req)
-		if err != nil {
+		if err := httpx.Parse(r, &req); err != nil {
 			httpx.Error(w, errorx.NewDefaultError("无效的空间ID"))
 			return
 		}
