@@ -99,3 +99,96 @@ const (
 	LengthLess4Msg = "长度小于4"
 	LengthLess8Msg = "长度小于8"
 )
+
+// 错误码和消息映射
+var errorMap = map[int]string{
+	// 系统级别错误
+	SystemErr:        SystemErrMsg,
+	ParamError:       ParamErrorMsg,
+	InvalidTimeRange: InvalidTimeRangeMsg,
+
+	// 认证授权相关错误
+	UnauthorizedErr: UnauthorizedErrMsg,
+	ForbiddenErr:    ForbiddenErrMsg,
+
+	// 资源相关错误
+	NotFoundErr: NotFoundErrMsg,
+
+	// 空间相关错误
+	SpaceNotEnough:    SpaceNotEnoughMsg,
+	SpaceNotExist:     SpaceNotExistMsg,
+	SpaceNameNotNull:  SpaceNameNotNullMsg,
+	CreateSpaceFailed: CreateSpaceFailedMsg,
+	InvalidSpaceLevel: InvalidSpaceLevelMsg,
+	GetSpaceFailed:    GetSpaceFailedMsg,
+
+	// 团队相关错误
+	NotTeamMember:     NotTeamMemberMsg,
+	NotTeamOwner:      NotTeamOwnerMsg,
+	AlreadyTeamMember: AlreadyTeamMemberMsg,
+	AddTeamMemberFail: AddTeamMemberFailMsg,
+
+	// 用户相关错误
+	UserNotExist:      UserNotExistMsg,
+	PasswordWrong:     PasswordWrongMsg,
+	UserExist:         UserExistMsg,
+	UserNotLogin:      UserNotLoginMsg,
+	UserNotActive:     UserNotActiveMsg,
+	RegisterFail:      RegisterFailMsg,
+	LoginFail:         LoginFailMsg,
+	GenerateTokenFail: GenerateTokenFailMsg,
+	PasswordNotMatch:  PasswordNotMatchMsg,
+
+	// 参数校验错误
+	LengthLess4: LengthLess4Msg,
+	LengthLess8: LengthLess8Msg,
+}
+
+// 获取错误信息
+func GetMessage(code int) string {
+	if msg, ok := errorMap[code]; ok {
+		return msg
+	}
+	return SystemErrMsg
+}
+
+// 创建错误
+func NewError(code int) error {
+	return &CodeError{
+		Code:    code,
+		Message: GetMessage(code),
+	}
+}
+
+// 创建带自定义消息的错误
+func NewErrorWithMsg(code int, msg string) error {
+	return &CodeError{
+		Code:    code,
+		Message: msg,
+	}
+}
+
+// 错误结构体
+type CodeError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e *CodeError) Error() string {
+	return e.Message
+}
+
+func NewCodeError(code int, message string) error {
+	return &CodeError{
+		Code:    code,
+		Message: message,
+	}
+}
+
+func NewSystemError(message string) error {
+	return NewCodeError(SystemErr, message)
+}
+
+func NewParamError(message string) error {
+	return NewCodeError(ParamError, message)
+}

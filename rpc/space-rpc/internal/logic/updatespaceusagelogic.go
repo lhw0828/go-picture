@@ -26,32 +26,36 @@ func NewUpdateSpaceUsageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 // 更新空间使用容量
 func (l *UpdateSpaceUsageLogic) UpdateSpaceUsage(in *space.UpdateSpaceUsageRequest) (*space.UpdateSpaceUsageResponse, error) {
-	// 参数校验
-	if in == nil || in.SpaceId <= 0 {
-		return nil, errorx.NewCodeError(errorx.ParamError, errorx.ParamErrorMsg)
-	}
-	if in.Size <= 0 {
-		return nil, errorx.NewCodeError(errorx.ParamError, "无效的容量大小")
-	}
-	if in.Operation != "add" && in.Operation != "subtract" {
-		return nil, errorx.NewCodeError(errorx.ParamError, "无效的操作类型")
-	}
-
-	// 更新使用容量
-	err := l.svcCtx.SpaceDao.UpdateUsage(in.SpaceId, in.Size, in.Operation)
-	if err != nil {
-		l.Logger.Errorf("Update space usage error: %v", err)
+	if err := l.validateRequest(in); err != nil {
 		return nil, err
 	}
 
-	// 获取更新后的容量信息
+	if err := l.svcCtx.SpaceDao.UpdateUsage(in.SpaceId, in.Size, in.Operation); err != nil {
+		l.Error("更新空间使用量失败", logx.Field("error", err))
+		return nil, errorx.NewError(errorx.SystemErr)
+	}
+
 	total, used, err := l.svcCtx.SpaceDao.GetUsage(in.SpaceId)
 	if err != nil {
-		return nil, err
+		l.Error("获取空间使用量失败", logx.Field("error", err))
+		return nil, errorx.NewError(errorx.SystemErr)
 	}
 
 	return &space.UpdateSpaceUsageResponse{
 		Success:           true,
 		RemainingCapacity: total - used,
 	}, nil
+}
+
+func (l *UpdateSpaceUsageLogic) validateRequest(in *space.UpdateSpaceUsageRequest) error {
+	if in == nil || in.SpaceId <= 0 {
+		return errorx.NewError(errorx.ParamError)
+	}
+	if in.Size <= 0 {
+		return errorx.NewErrorWithMsg(errorx.ParamError, "无效的容量大小")
+	}
+	if in.Operation != "add" && in.Operation != "subtract" {
+		return errorx.NewErrorWithMsg(errorx.ParamError, "无效的操作类型")
+	}
+	return nil
 }

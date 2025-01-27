@@ -30,10 +30,7 @@ func main() {
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
-
-	// 使用封装的错误处理器
 	httpx.SetErrorHandler(errorx.ErrorHandler)
-
 	handler.RegisterHandlers(server, ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
