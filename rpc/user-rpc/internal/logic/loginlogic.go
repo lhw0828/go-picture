@@ -50,9 +50,13 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 	}
 
 	// 校验密码
-	if userModel.UserPassword != utils.EncryptPassword(in.UserPassword) {
-		return nil, errorx.NewCodeError(errorx.PasswordWrong, "密码错误")
-	}
+    encryptedPassword, err := utils.EncryptPassword(in.UserPassword)
+    if err != nil {
+        return nil, err
+    }
+    if userModel.UserPassword != encryptedPassword {
+        return nil, errorx.NewCodeError(errorx.PasswordWrong, "密码错误")
+    }
 
 	// 生成token
 	token, err := l.generateToken(userModel.Id)
@@ -61,18 +65,20 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 		return nil, errorx.NewCodeError(errorx.GenerateTokenFail, "生成token失败")
 	}
 
-	// 添加返回日志
-	resp := &user.LoginResponse{
-		Id:          userModel.Id,
-		UserAccount: userModel.UserAccount,
-		UserName:    userModel.UserName,
-		UserAvatar:  userModel.UserAvatar.String,  // 使用 String 字段
-		UserProfile: userModel.UserProfile.String, // 使用 String 字段
-		UserRole:    userModel.UserRole,
-		AccessToken: token,
-	}
-	l.Logger.Infof("Login response: %v", resp)
-	return resp, nil
+    // 添加返回日志
+    resp := &user.LoginResponse{
+        User: &user.UserInfo{
+            Id:          userModel.Id,
+            UserAccount: userModel.UserAccount,
+            UserName:    userModel.UserName,
+            UserAvatar:  userModel.UserAvatar.String,
+            UserProfile: userModel.UserProfile.String,
+            UserRole:    userModel.UserRole,
+        },
+        AccessToken: token,
+    }
+    l.Logger.Infof("Login response: %v", resp)
+    return resp, nil
 }
 
 func (l *LoginLogic) generateToken(userId int64) (string, error) {

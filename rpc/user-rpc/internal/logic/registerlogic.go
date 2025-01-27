@@ -49,17 +49,24 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 		return nil, errorx.NewCodeError(errorx.UserExist, "账号已存在")
 	}
 
+	// 加密密码
+	encryptPassword, err := utils.EncryptPassword(in.UserPassword)
+	if err != nil {
+		l.Logger.Errorf("密码加密失败: %v", err)
+		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")
+	}
+
 	// 创建用户
 	newUser := &model.User{
 		UserAccount:  in.UserAccount,
-		UserPassword: utils.EncryptPassword(in.UserPassword),
+		UserPassword: encryptPassword,
 		UserName:     "用户" + in.UserAccount,
 		UserRole:     "user",
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
 	}
 
-	result, err := l.svcCtx.UserDao.Insert(newUser)
+	result, err := l.svcCtx.UserDao.Insert(l.ctx, newUser) // Add l.ctx as first parameter
 	if err != nil {
 		l.Logger.Errorf("插入到数据库错误，Insert user error: %v", err)
 		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")

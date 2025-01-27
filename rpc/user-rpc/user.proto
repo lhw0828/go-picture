@@ -3,37 +3,9 @@ syntax = "proto3";
 package user;
 option go_package="./user";
 
-message RegisterRequest {
-  string userAccount = 1;
-  string userPassword = 2;
-  string checkPassword = 3;
-}
-
-message RegisterResponse {
-  int64 id = 1;
-}
-
-message LoginRequest {
-  string userAccount = 1;
-  string userPassword = 2;
-}
-
-message LoginResponse {
-  int64 id = 1;
-  string userAccount = 2;
-  string userName = 3;
-  string userAvatar = 4;
-  string userProfile = 5;
-  string userRole = 6;
-  string accessToken = 7;
-}
-
-message GetUserByIdRequest {
-    int64 id = 1;
-}
-
-message GetUserByIdResponse {
-    int64 id = 1;
+// 用户基础信息
+message UserInfo {
+    int64  id = 1;
     string userAccount = 2;
     string userName = 3;
     string userAvatar = 4;
@@ -41,8 +13,86 @@ message GetUserByIdResponse {
     string userRole = 6;
 }
 
+// 注册相关
+message RegisterRequest {
+    string userAccount = 1;
+    string userPassword = 2;
+    string checkPassword = 3;
+}
+
+message RegisterResponse {
+    int64 id = 1;
+}
+
+// 登录相关
+message LoginRequest {
+    string userAccount = 1;
+    string userPassword = 2;
+}
+
+message LoginResponse {
+    UserInfo user = 1;
+    string accessToken = 2;
+}
+
+// 用户管理相关
+message AddUserRequest {
+    string userAccount = 1;
+    string userName = 2;
+    string userAvatar = 3;
+    string userProfile = 4;
+    string userRole = 5;
+}
+
+message AddUserResponse {
+    int64 id = 1;
+}
+
+message UpdateUserRequest {
+    int64 id = 1;
+    string userName = 2;
+    string userAvatar = 3;
+    string userProfile = 4;
+}
+
+message DeleteUserRequest {
+    int64 id = 1;
+}
+
+message GetUserByIdRequest {
+    int64 id = 1;
+}
+
+message ListUserRequest {
+    int64 current = 1;
+    int64 pageSize = 2;
+}
+
+message ListUserResponse {
+    int64 total = 1;
+    repeated UserInfo records = 2;
+}
+
+// 基础响应
+message BaseResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
+// Add this to the proto file if not exists
+// message AddUserResponse {
+//     int64 id = 1;
+// }
+
 service UserService {
+    // 基础功能
     rpc Register(RegisterRequest) returns(RegisterResponse);
     rpc Login(LoginRequest) returns(LoginResponse);
-    rpc GetUserById(GetUserByIdRequest) returns(GetUserByIdResponse);
+    rpc GetUserById(GetUserByIdRequest) returns(UserInfo);
+    
+    // 管理功能
+    rpc AddUser(AddUserRequest) returns(AddUserResponse);  // 修改这里的返回类型
+    rpc UpdateUser(UpdateUserRequest) returns(BaseResponse);
+    rpc DeleteUser(DeleteUserRequest) returns(BaseResponse);
+    rpc ListUser(ListUserRequest) returns(ListUserResponse);
 }

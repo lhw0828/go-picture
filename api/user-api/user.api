@@ -57,6 +57,37 @@ service user {
 	@doc "获取当前用户信息"
 	@handler getCurrentUser
 	get /user/current returns (LoginResp)
+
+	@doc "用户注销"
+	@handler logout
+	post /user/logout returns (BaseResp)
+
+	@doc "获取用户信息"
+	@handler getUserById
+	get /user/get/:id returns (UserVO)
+}
+
+@server (
+	jwt:    Auth
+	prefix: api/v1
+	group:  admin
+)
+service user {
+	@doc "创建用户"
+	@handler addUser
+	post /user/add (UserAddReq) returns (RegisterResp)
+
+	@doc "更新用户"
+	@handler updateUser
+	post /user/update (UserUpdateReq) returns (BaseResp)
+
+	@doc "删除用户"
+	@handler deleteUser
+	post /user/delete/:id returns (BaseResp)
+
+	@doc "分页获取用户列表"
+	@handler listUserByPage
+	post /user/list/page (UserQueryReq) returns (UserQueryResp)
 }
 
 

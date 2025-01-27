@@ -24,7 +24,7 @@ func NewGetUserByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 	}
 }
 
-func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUserByIdResponse, error) {
+func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.UserInfo, error) {
 	// Add logging
 	l.Logger.Infof("rpc调用，GetUserById request: %v", in)
 
@@ -38,7 +38,7 @@ func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUs
 		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
 	}
 
-	return &user.GetUserByIdResponse{
+	return &user.UserInfo{
 		Id:          userModel.Id,
 		UserAccount: userModel.UserAccount,
 		UserName:    userModel.UserName,

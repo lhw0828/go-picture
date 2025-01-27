@@ -47,6 +47,7 @@ const (
 	LoginFail         = 40506 // 登录失败
 	GenerateTokenFail = 40507 // 生成token失败
 	PasswordNotMatch  = 40508 // 密码不匹配
+	PasswordIsNull    = 40509 // 密码为空
 )
 
 // 常用参数校正错误码 (406xx)
@@ -101,6 +102,7 @@ const (
 	LoginFailMsg         = "登录失败"
 	GenerateTokenFailMsg = "生成token失败"
 	PasswordNotMatchMsg  = "密码不匹配"
+	PasswordIsNullMsg    = "密码为空"
 
 	// 常用参数校正错误信息
 	LengthLess4Msg = "长度小于4"
