@@ -6,7 +6,7 @@ import (
 	"picture/api/space-api/internal/logic"
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -19,7 +19,7 @@ func getSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		// 从路径中获取 ID
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.Error(w, constants.NewCodeError(constants.ParamError, "无效的空间ID"))
+			httpx.Error(w, errorx.NewCodeError(errorx.ParamError, "无效的空间ID"))
 			return
 		}
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"net/http"
@@ -9,8 +8,8 @@ import (
 	"picture/api/space-api/internal/config"
 	"picture/api/space-api/internal/handler"
 	"picture/api/space-api/internal/svc"
-	"picture/common/constants"
-	"picture/common/middleware"
+	"picture/common/errorx"
+	"picture/common/response"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
@@ -25,23 +24,17 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
+		httpx.OkJson(w, response.Error(errorx.UnauthorizedErr, "认证失败"))
+	}))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
-	httpx.SetErrorHandler(func(err error) (int, interface{}) {
-		var e *constants.CodeError
-		switch {
-		case errors.As(err, &e):
-			return http.StatusOK, constants.Fail(e)
-		default:
-			return http.StatusInternalServerError, nil
-		}
-	})
-	handler.RegisterHandlers(server, ctx)
 
-	// 添加错误处理中间件
-	server.Use(middleware.ErrorHandler)
+	// 使用封装的错误处理器
+	httpx.SetErrorHandler(errorx.ErrorHandler)
+
+	handler.RegisterHandlers(server, ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

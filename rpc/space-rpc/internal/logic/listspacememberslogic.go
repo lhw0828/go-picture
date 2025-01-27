@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
 	"picture/rpc/user-rpc/user"
@@ -34,7 +34,7 @@ func (l *ListSpaceMembersLogic) ListSpaceMembers(in *space.ListSpaceMembersReque
 		return nil, err
 	}
 	if spaceInfo == nil {
-		return nil, constants.NewCodeError(constants.SpaceNotExist, "空间不存在")
+		return nil, errorx.NewCodeError(errorx.SpaceNotExist, "空间不存在")
 	}
 
 	// 获取成员列表

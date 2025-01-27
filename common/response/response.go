@@ -20,3 +20,11 @@ func Error(code int, message string) *Response {
 		Message: message,
 	}
 }
+
+func ErrorWithData(code int, msg string, data interface{}) *Response {
+	return &Response{
+		Code:    code,
+		Message: msg,
+		Data:    data,
+	}
+}

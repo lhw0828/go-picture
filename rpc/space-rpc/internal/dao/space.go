@@ -2,7 +2,7 @@ package dao
 
 import (
 	"database/sql"
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -77,7 +77,7 @@ func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) erro
 	}
 
 	if affected == 0 {
-		return constants.NewCodeError(constants.SpaceNotEnough, "空间容量不足或操作无效")
+		return errorx.NewCodeError(errorx.SpaceNotEnough, "空间容量不足或操作无效")
 	}
 
 	return nil

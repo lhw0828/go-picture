@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
 
@@ -32,17 +32,17 @@ func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.GetSpaceResp
 
 	// 参数校验
 	if in == nil || in.Id <= 0 {
-		return nil, constants.NewCodeError(constants.ParamError, constants.ParamErrorMsg)
+		return nil, errorx.NewCodeError(errorx.ParamError, errorx.ParamErrorMsg)
 	}
 
 	spaceInfo, err := l.svcCtx.SpaceDao.FindById(in.Id)
 	if spaceInfo == nil {
 		l.Logger.Infof("空间不存在, id: %d", in.Id)
-		return nil, constants.NewCodeError(constants.SpaceNotExist, constants.SpaceNotExistMsg)
+		return nil, errorx.NewCodeError(errorx.SpaceNotExist, errorx.SpaceNotExistMsg)
 	}
 	if err != nil {
 		l.Logger.Errorf("获取空间信息失败，Find space error: %v", err)
-		return nil, constants.NewCodeError(constants.GetSpaceFailed, constants.GetSpaceFailedMsg)
+		return nil, errorx.NewCodeError(errorx.GetSpaceFailed, errorx.GetSpaceFailedMsg)
 	}
 
 	return &space.GetSpaceResponse{

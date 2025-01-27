@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
@@ -34,7 +34,7 @@ func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.Cre
 
 	// 参数校验
 	if len(in.SpaceName) < 1 {
-		return nil, constants.NewCodeError(constants.SpaceNameNotNull, "空间名称不能为空")
+		return nil, errorx.NewCodeError(errorx.SpaceNameNotNull, "空间名称不能为空")
 	}
 
 	// 设置空间容量
@@ -47,7 +47,7 @@ func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.Cre
 	case 2:
 		maxSize = 10 * 1024 * 1024 * 1024 // 10GB
 	default:
-		return nil, constants.NewCodeError(constants.InvalidSpaceLevel, "无效的空间级别")
+		return nil, errorx.NewCodeError(errorx.InvalidSpaceLevel, "无效的空间级别")
 	}
 
 	// 创建空间
@@ -69,13 +69,13 @@ func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.Cre
 	result, err := l.svcCtx.SpaceDao.Insert(newSpace)
 	if err != nil {
 		l.Logger.Errorf("Insert space error: %v", err)
-		return nil, constants.NewCodeError(constants.CreateSpaceFailed, "创建空间失败")
+		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
 	}
 
 	spaceId, err := result.LastInsertId()
 	if err != nil {
 		l.Logger.Errorf("Get last insert id error: %v", err)
-		return nil, constants.NewCodeError(constants.CreateSpaceFailed, "创建空间失败")
+		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
 	}
 
 	return &space.CreateSpaceResponse{

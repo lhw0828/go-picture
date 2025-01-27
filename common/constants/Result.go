@@ -1,5 +1,7 @@
 package constants
 
+import "picture/common/errorx"
+
 type Result struct {
 	Code    int    `json:"code"`
 	Message string `json:"Message"`
@@ -14,7 +16,7 @@ func Success(data any) *Result {
 	}
 }
 
-func Fail(err *CodeError) *Result {
+func Fail(err *errorx.CodeError) *Result {
 	return &Result{
 		Code:    err.Code,
 		Message: err.Message,

@@ -1,15 +1,13 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
-	"net/http"
 
 	"picture/api/user-api/internal/config"
 	"picture/api/user-api/internal/handler"
 	"picture/api/user-api/internal/svc"
-	"picture/common/constants"
+	"picture/common/errorx"
 	"picture/common/middleware"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -30,15 +28,8 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 
-	httpx.SetErrorHandler(func(err error) (int, interface{}) {
-		var e *constants.CodeError
-		switch {
-		case errors.As(err, &e):
-			return http.StatusOK, constants.Fail(e)
-		default:
-			return http.StatusInternalServerError, nil
-		}
-	})
+	// 使用封装的错误处理器
+	httpx.SetErrorHandler(errorx.ErrorHandler)
 
 	handler.RegisterHandlers(server, ctx)
 

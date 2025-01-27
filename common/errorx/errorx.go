@@ -1,4 +1,4 @@
-package constants
+package errorx
 
 type CodeError struct {
 	Code    int    `json:"code"`

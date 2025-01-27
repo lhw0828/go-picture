@@ -1,4 +1,4 @@
-package constants
+package errorx
 
 // 系统级别错误码
 const (
