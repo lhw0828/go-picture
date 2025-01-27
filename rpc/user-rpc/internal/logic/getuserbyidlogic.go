@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	"picture/common/errorx"
+	"picture/common/constants"
 	"picture/rpc/user-rpc/internal/svc"
 	"picture/rpc/user-rpc/user"
 
@@ -35,7 +35,7 @@ func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUs
 		return nil, err
 	}
 	if userModel == nil {
-		return nil, errorx.NewDefaultError("用户不存在")
+		return nil, constants.NewCodeError(constants.UserNotExist, "用户不存在")
 	}
 
 	return &user.GetUserByIdResponse{

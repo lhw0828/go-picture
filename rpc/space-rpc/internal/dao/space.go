@@ -2,7 +2,7 @@ package dao
 
 import (
 	"database/sql"
-	"picture/common/errorx"
+	"picture/common/constants"
 	"picture/rpc/space-rpc/internal/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -18,7 +18,7 @@ func NewSpaceDao(conn sqlx.SqlConn) *SpaceDao {
 }
 
 func (d *SpaceDao) Insert(space *model.Space) (sql.Result, error) {
-	query := `insert into space(spaceName, spaceLevel, spaceType, maxSize, maxCount, totalSize, totalCount, 
+	query := `insert into space(spaceName, spaceLevel, spaceType, maxSize, maxCount, totalSize, totalCount,
 		userId, createTime, editTime, updateTime) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	return d.conn.Exec(query,
@@ -77,7 +77,7 @@ func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) erro
 	}
 
 	if affected == 0 {
-		return errorx.NewDefaultError("空间容量不足或操作无效")
+		return constants.NewCodeError(constants.SpaceNotEnough, "空间容量不足或操作无效")
 	}
 
 	return nil

@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	"picture/common/errorx"
+	"picture/common/constants"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
 
@@ -48,7 +48,7 @@ func (l *GetSpaceAnalysisLogic) GetSpaceAnalysis(in *space.GetSpaceAnalysisReque
 	case "month":
 		days = 30
 	default:
-		return nil, errorx.NewDefaultError("无效的时间范围")
+		return nil, constants.NewCodeError(constants.InvalidTimeRange, "无效的时间范围")
 	}
 
 	trends, err := l.svcCtx.SpaceAnalysisDao.GetUsageTrends(in.SpaceId, days)

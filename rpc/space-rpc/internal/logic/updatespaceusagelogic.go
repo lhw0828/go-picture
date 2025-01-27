@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 
-	"picture/common/errorx"
+	"picture/common/constants"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
 
@@ -27,11 +27,14 @@ func NewUpdateSpaceUsageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 // 更新空间使用容量
 func (l *UpdateSpaceUsageLogic) UpdateSpaceUsage(in *space.UpdateSpaceUsageRequest) (*space.UpdateSpaceUsageResponse, error) {
 	// 参数校验
+	if in == nil || in.SpaceId <= 0 {
+		return nil, constants.NewCodeError(constants.ParamError, constants.ParamErrorMsg)
+	}
 	if in.Size <= 0 {
-		return nil, errorx.NewDefaultError("无效的容量大小")
+		return nil, constants.NewCodeError(constants.ParamError, "无效的容量大小")
 	}
 	if in.Operation != "add" && in.Operation != "subtract" {
-		return nil, errorx.NewDefaultError("无效的操作类型")
+		return nil, constants.NewCodeError(constants.ParamError, "无效的操作类型")
 	}
 
 	// 更新使用容量
