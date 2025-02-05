@@ -196,3 +196,100 @@ func (d *SpaceDao) List(ctx context.Context, current, pageSize int64, spaceName 
 
 	return spaces, nil
 }
+
+// GetUserPermissions 获取用户在空间中的权限
+func (d *SpaceDao) GetUserPermissions(ctx context.Context, spaceId, userId int64) ([]string, error) {
+	// 1. 获取空间信息
+	space, err := d.FindById(spaceId)
+	if err != nil {
+		return nil, err
+	}
+	if space == nil {
+		return nil, errorx.NewCodeError(errorx.NotFoundError, "空间不存在")
+	}
+
+	// 2. 获取用户角色
+	var userRole string
+	err = d.conn.QueryRowCtx(ctx, &userRole, "select userRole from user where id = ? and isDelete = 0", userId)
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, errorx.NewCodeError(errorx.NotFoundError, "用户不存在")
+		}
+		return nil, err
+	}
+
+	// 3. 获取权限列表
+	permissions := make([]string, 0)
+
+	// 3.1 如果是管理员，拥有所有权限
+	if userRole == "admin" {
+		permissions = append(permissions,
+			"space:view",     // 查看空间
+			"space:edit",     // 编辑空间
+			"space:delete",   // 删除空间
+			"space:upload",   // 上传文件
+			"space:download", // 下载文件
+			"space:share",    // 分享文件
+			"space:manage",   // 空间管理
+		)
+		return permissions, nil
+	}
+
+	// 3.2 如果是空间所有者，拥有除管理权限外的所有权限
+	if space.UserId == userId {
+		permissions = append(permissions,
+			"space:view",     // 查看空间
+			"space:edit",     // 编辑空间
+			"space:delete",   // 删除空间
+			"space:upload",   // 上传文件
+			"space:download", // 下载文件
+			"space:share",    // 分享文件
+		)
+		return permissions, nil
+	}
+
+	// 3.3 如果是团队空间，查询用户在空间中的权限
+	if space.SpaceType == 1 {
+		var spaceRole string
+		err = d.conn.QueryRowCtx(ctx, &spaceRole,
+			"select spaceRole from space_user where spaceId = ? and userId = ? and isDelete = 0",
+			spaceId, userId)
+		if err != nil && err != sqlx.ErrNotFound {
+			return nil, err
+		}
+		if err == nil {
+			switch spaceRole {
+			case "admin":
+				permissions = append(permissions,
+					"space:view",
+					"space:edit",
+					"space:upload",
+					"space:download",
+					"space:share",
+					"space:manage",
+				)
+			case "editor":
+				permissions = append(permissions,
+					"space:view",
+					"space:edit",
+					"space:upload",
+					"space:download",
+					"space:share",
+				)
+			case "viewer":
+				permissions = append(permissions,
+					"space:view",
+					"space:download",
+				)
+			}
+			return permissions, nil
+		}
+	}
+
+	// 3.4 如果是私有空间且不是所有者，只有查看权限
+	if space.SpaceType == 0 {
+		permissions = append(permissions, "space:view")
+	}
+
+	return permissions, nil
+}

@@ -19,13 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SpaceService_CreateSpace_FullMethodName      = "/space.SpaceService/CreateSpace"
-	SpaceService_GetSpace_FullMethodName         = "/space.SpaceService/GetSpace"
-	SpaceService_UpdateSpace_FullMethodName      = "/space.SpaceService/UpdateSpace"
-	SpaceService_DeleteSpace_FullMethodName      = "/space.SpaceService/DeleteSpace"
-	SpaceService_ListSpace_FullMethodName        = "/space.SpaceService/ListSpace"
-	SpaceService_ListSpaceMembers_FullMethodName = "/space.SpaceService/ListSpaceMembers"
-	SpaceService_GetSpaceAnalysis_FullMethodName = "/space.SpaceService/GetSpaceAnalysis"
+	SpaceService_CreateSpace_FullMethodName         = "/space.SpaceService/CreateSpace"
+	SpaceService_GetSpace_FullMethodName            = "/space.SpaceService/GetSpace"
+	SpaceService_UpdateSpace_FullMethodName         = "/space.SpaceService/UpdateSpace"
+	SpaceService_DeleteSpace_FullMethodName         = "/space.SpaceService/DeleteSpace"
+	SpaceService_ListSpace_FullMethodName           = "/space.SpaceService/ListSpace"
+	SpaceService_ListSpaceMembers_FullMethodName    = "/space.SpaceService/ListSpaceMembers"
+	SpaceService_GetSpaceAnalysis_FullMethodName    = "/space.SpaceService/GetSpaceAnalysis"
+	SpaceService_GetSpacePermissions_FullMethodName = "/space.SpaceService/GetSpacePermissions"
+	SpaceService_GetSpaceVO_FullMethodName          = "/space.SpaceService/GetSpaceVO"
 )
 
 // SpaceServiceClient is the client API for SpaceService service.
@@ -46,6 +48,9 @@ type SpaceServiceClient interface {
 	ListSpaceMembers(ctx context.Context, in *ListSpaceMembersRequest, opts ...grpc.CallOption) (*ListSpaceMembersResponse, error)
 	// 获取空间分析数据
 	GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*SpaceAnalysis, error)
+	// 获取空间权限
+	GetSpacePermissions(ctx context.Context, in *GetSpacePermissionsRequest, opts ...grpc.CallOption) (*GetSpacePermissionsResponse, error)
+	GetSpaceVO(ctx context.Context, in *GetSpaceVORequest, opts ...grpc.CallOption) (*SpaceVO, error)
 }
 
 type spaceServiceClient struct {
@@ -126,6 +131,26 @@ func (c *spaceServiceClient) GetSpaceAnalysis(ctx context.Context, in *GetSpaceA
 	return out, nil
 }
 
+func (c *spaceServiceClient) GetSpacePermissions(ctx context.Context, in *GetSpacePermissionsRequest, opts ...grpc.CallOption) (*GetSpacePermissionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSpacePermissionsResponse)
+	err := c.cc.Invoke(ctx, SpaceService_GetSpacePermissions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spaceServiceClient) GetSpaceVO(ctx context.Context, in *GetSpaceVORequest, opts ...grpc.CallOption) (*SpaceVO, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SpaceVO)
+	err := c.cc.Invoke(ctx, SpaceService_GetSpaceVO_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SpaceServiceServer is the server API for SpaceService service.
 // All implementations must embed UnimplementedSpaceServiceServer
 // for forward compatibility.
@@ -144,6 +169,9 @@ type SpaceServiceServer interface {
 	ListSpaceMembers(context.Context, *ListSpaceMembersRequest) (*ListSpaceMembersResponse, error)
 	// 获取空间分析数据
 	GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*SpaceAnalysis, error)
+	// 获取空间权限
+	GetSpacePermissions(context.Context, *GetSpacePermissionsRequest) (*GetSpacePermissionsResponse, error)
+	GetSpaceVO(context.Context, *GetSpaceVORequest) (*SpaceVO, error)
 	mustEmbedUnimplementedSpaceServiceServer()
 }
 
@@ -174,6 +202,12 @@ func (UnimplementedSpaceServiceServer) ListSpaceMembers(context.Context, *ListSp
 }
 func (UnimplementedSpaceServiceServer) GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*SpaceAnalysis, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSpaceAnalysis not implemented")
+}
+func (UnimplementedSpaceServiceServer) GetSpacePermissions(context.Context, *GetSpacePermissionsRequest) (*GetSpacePermissionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSpacePermissions not implemented")
+}
+func (UnimplementedSpaceServiceServer) GetSpaceVO(context.Context, *GetSpaceVORequest) (*SpaceVO, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSpaceVO not implemented")
 }
 func (UnimplementedSpaceServiceServer) mustEmbedUnimplementedSpaceServiceServer() {}
 func (UnimplementedSpaceServiceServer) testEmbeddedByValue()                      {}
@@ -322,6 +356,42 @@ func _SpaceService_GetSpaceAnalysis_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SpaceService_GetSpacePermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSpacePermissionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpaceServiceServer).GetSpacePermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpaceService_GetSpacePermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpaceServiceServer).GetSpacePermissions(ctx, req.(*GetSpacePermissionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpaceService_GetSpaceVO_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSpaceVORequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpaceServiceServer).GetSpaceVO(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpaceService_GetSpaceVO_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpaceServiceServer).GetSpaceVO(ctx, req.(*GetSpaceVORequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SpaceService_ServiceDesc is the grpc.ServiceDesc for SpaceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -356,6 +426,14 @@ var SpaceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSpaceAnalysis",
 			Handler:    _SpaceService_GetSpaceAnalysis_Handler,
+		},
+		{
+			MethodName: "GetSpacePermissions",
+			Handler:    _SpaceService_GetSpacePermissions_Handler,
+		},
+		{
+			MethodName: "GetSpaceVO",
+			Handler:    _SpaceService_GetSpaceVO_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

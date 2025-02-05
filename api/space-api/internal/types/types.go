@@ -34,6 +34,13 @@ type ListSpaceResp struct {
 	PageSize int64       `json:"pageSize"`
 }
 
+type ListSpaceVOResp struct {
+	List     []SpaceVO `json:"list"`
+	Total    int64     `json:"total"`
+	Current  int64     `json:"current"`
+	PageSize int64     `json:"pageSize"`
+}
+
 type SizeCount struct {
 	SizeRange string `json:"sizeRange"`
 	Count     int64  `json:"count"`
@@ -52,18 +59,17 @@ type SpaceAnalysisReq struct {
 }
 
 type SpaceInfo struct {
-	Id          int64    `json:"id"`
-	SpaceName   string   `json:"spaceName"`
-	SpaceType   int32    `json:"spaceType"`  // 0-私有 1-团队
-	SpaceLevel  int32    `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
-	MaxSize     int64    `json:"maxSize"`
-	MaxCount    int64    `json:"maxCount"`
-	TotalSize   int64    `json:"totalSize"`
-	TotalCount  int64    `json:"totalCount"`
-	UserId      int64    `json:"userId"`
-	CreateTime  string   `json:"createTime"`
-	UpdateTime  string   `json:"updateTime"`
-	Permissions []string `json:"permissions,optional"`
+	Id         int64  `json:"id"`
+	SpaceName  string `json:"spaceName"`
+	SpaceType  int32  `json:"spaceType"`  // 0-私有 1-团队
+	SpaceLevel int32  `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
+	MaxSize    int64  `json:"maxSize"`
+	MaxCount   int64  `json:"maxCount"`
+	TotalSize  int64  `json:"totalSize"`
+	TotalCount int64  `json:"totalCount"`
+	UserId     int64  `json:"userId"`
+	CreateTime string `json:"createTime"`
+	UpdateTime string `json:"updateTime"`
 }
 
 type SpaceUsage struct {
@@ -73,6 +79,12 @@ type SpaceUsage struct {
 	UsedCount       int64   `json:"usedCount"`
 	MaxCount        int64   `json:"maxCount"`
 	CountUsageRatio float64 `json:"countUsageRatio"`
+}
+
+type SpaceVO struct {
+	SpaceInfo
+	UserInfo
+	Permissions []string `json:"permissions,optional"`
 }
 
 type TagCount struct {
@@ -86,4 +98,11 @@ type UpdateSpaceReq struct {
 	SpaceLevel int32  `json:"spaceLevel,optional"`
 	MaxSize    int64  `json:"maxSize,optional"`
 	MaxCount   int64  `json:"maxCount,optional"`
+}
+
+type UserInfo struct {
+	Id         int64  `json:"id"`
+	UserName   string `json:"username"`
+	UserAvatar string `json:"userAvatar"`
+	UserRole   string `json:"userRole"`
 }
