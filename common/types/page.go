@@ -6,7 +6,11 @@ type PageRequest struct {
 }
 
 type DeleteRequest struct {
-	Id int `path:"id"`
+	Id int64 `path:"id"`
+}
+
+type GetRequest struct {
+	Id int64 `path:"id"`
 }
 
 type PageResponse struct {
