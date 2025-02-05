@@ -12,10 +12,32 @@ type UserDao struct {
 	conn sqlx.SqlConn
 }
 
-func (d *UserDao) FindById(id int64) (*model.User, error) {
+func NewUserDao(conn sqlx.SqlConn) *UserDao {
+	return &UserDao{
+		conn: conn,
+	}
+}
+
+// 添加分页查询方法
+func (d *UserDao) FindByPage(ctx context.Context, offset, limit int64) ([]*model.User, error) {
+	var users []*model.User
+	query := `select * from user where isDelete = 0 order by id desc limit ?, ?`
+	err := d.conn.QueryRowsCtx(ctx, &users, query, offset, limit)
+	return users, err
+}
+
+// 添加统计方法
+func (d *UserDao) Count(ctx context.Context) (int64, error) {
+	var count int64
+	query := `select count(*) from user where isDelete = 0`
+	err := d.conn.QueryRowCtx(ctx, &count, query)
+	return count, err
+}
+
+func (d *UserDao) FindById(ctx context.Context, id int64) (*model.User, error) {
 	var user model.User
 	query := `select * from user where id = ? and isDelete = 0 limit 1`
-	err := d.conn.QueryRow(&user, query, id)
+	err := d.conn.QueryRowCtx(ctx, &user, query, id)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -25,16 +47,14 @@ func (d *UserDao) FindById(id int64) (*model.User, error) {
 	return &user, nil
 }
 
-func NewUserDao(conn sqlx.SqlConn) *UserDao {
-	return &UserDao{
-		conn: conn,
-	}
+func (d *UserDao) FindOne(ctx context.Context, id int64) (*model.User, error) {
+	return d.FindById(ctx, id)
 }
 
-func (d *UserDao) FindByUserAccount(userAccount string) (*model.User, error) {
+func (d *UserDao) FindByUserAccount(ctx context.Context, userAccount string) (*model.User, error) {
 	var user model.User
 	query := `select * from user where userAccount = ? and isDelete = 0 limit 1`
-	err := d.conn.QueryRow(&user, query, userAccount)
+	err := d.conn.QueryRowCtx(ctx, &user, query, userAccount)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -58,24 +78,19 @@ func (d *UserDao) Insert(ctx context.Context, user *model.User) (sql.Result, err
 		user.UpdateTime)
 }
 
-// 查询总数
-func (d *UserDao) Count(ctx context.Context) (int64, error) {
-    var count int64
-    query := `select count(*) from user where isDelete = 0`
-    err := d.conn.QueryRowCtx(ctx, &count, query)
-    if err != nil {
-        return 0, err
-    }
-    return count, nil
+func (d *UserDao) Update(ctx context.Context, user *model.User) error {
+	query := `update user set userName=?, userAvatar=?, userProfile=?, updateTime=? where id=?`
+	_, err := d.conn.ExecCtx(ctx, query,
+		user.UserName,
+		user.UserAvatar,
+		user.UserProfile,
+		user.UpdateTime,
+		user.Id)
+	return err
 }
 
-// 分页查询
-func (d *UserDao) FindByPage(ctx context.Context, offset, pageSize int64) ([]*model.User, error) {
-    var users []*model.User
-    query := `select * from user where isDelete = 0 order by createTime desc limit ?, ?`
-    err := d.conn.QueryRowsCtx(ctx, &users, query, offset, pageSize)
-    if err != nil {
-        return nil, err
-    }
-    return users, nil
+func (d *UserDao) Delete(ctx context.Context, id int64) error {
+	query := `update user set isDelete=1 where id=?`
+	_, err := d.conn.ExecCtx(ctx, query, id)
+	return err
 }

@@ -11,6 +11,7 @@ message UserInfo {
     string userAvatar = 4;
     string userProfile = 5;
     string userRole = 6;
+    string createTime = 7;
 }
 
 // 注册相关
@@ -36,7 +37,7 @@ message LoginResponse {
 }
 
 // 用户管理相关
-message AddUserRequest {
+message UserAddRequest {
     string userAccount = 1;
     string userName = 2;
     string userAvatar = 3;
@@ -44,31 +45,20 @@ message AddUserRequest {
     string userRole = 5;
 }
 
-message AddUserResponse {
-    int64 id = 1;
-}
-
-message UpdateUserRequest {
+message UserUpdateRequest {
     int64 id = 1;
     string userName = 2;
     string userAvatar = 3;
     string userProfile = 4;
 }
 
-message DeleteUserRequest {
-    int64 id = 1;
-}
-
-message GetUserByIdRequest {
-    int64 id = 1;
-}
-
-message ListUserRequest {
+message UserQueryRequest {
     int64 current = 1;
     int64 pageSize = 2;
+    string userRole = 3;
 }
 
-message ListUserResponse {
+message UserQueryResponse {
     int64 total = 1;
     repeated UserInfo records = 2;
 }
@@ -79,20 +69,31 @@ message BaseResponse {
     string msg = 2;
 }
 
-// Add this to the proto file if not exists
-// message AddUserResponse {
-//     int64 id = 1;
-// }
+// 获取用户请求
+message GetUserByIdRequest {
+    int64 id = 1;
+}
+
+// 删除用户请求
+message DeleteUserRequest {
+    int64 id = 1;
+}
+
+// 注销请求
+message LogoutRequest {
+    int64 userId = 1;
+}
 
 service UserService {
     // 基础功能
     rpc Register(RegisterRequest) returns(RegisterResponse);
     rpc Login(LoginRequest) returns(LoginResponse);
-    rpc GetUserById(GetUserByIdRequest) returns(UserInfo);
+    rpc GetCurrentUser(GetUserByIdRequest) returns(UserInfo);
+    rpc Logout(LogoutRequest) returns(BaseResponse);
     
-    // 管理功能
-    rpc AddUser(AddUserRequest) returns(AddUserResponse);  // 修改这里的返回类型
-    rpc UpdateUser(UpdateUserRequest) returns(BaseResponse);
+    // 用户管理功能
+    rpc AddUser(UserAddRequest) returns(RegisterResponse);
+    rpc UpdateUser(UserUpdateRequest) returns(BaseResponse);
     rpc DeleteUser(DeleteUserRequest) returns(BaseResponse);
-    rpc ListUser(ListUserRequest) returns(ListUserResponse);
+    rpc ListUserByPage(UserQueryRequest) returns(UserQueryResponse);
 }

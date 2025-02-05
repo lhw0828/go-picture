@@ -1,9 +1,23 @@
 Name: user.rpc
 ListenOn: 0.0.0.0:8080
+
+Log:
+  ServiceName: user-rpc
+  Mode: console
+  Level: info
+  Encoding: json
+
+Mysql:
+  DataSource: root:Mima4256.@tcp(localhost:3306)/picture?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
 Etcd:
   Hosts:
     - localhost:2379
   Key: user.rpc
+  NonBlock: true
 
-Mysql:
-  DataSource: root:Mima4256.@tcp(localhost:3306)/picture?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Telemetry:
+  Name: user.rpc
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

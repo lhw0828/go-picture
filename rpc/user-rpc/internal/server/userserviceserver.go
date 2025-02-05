@@ -34,18 +34,23 @@ func (s *UserServiceServer) Login(ctx context.Context, in *user.LoginRequest) (*
 	return l.Login(in)
 }
 
-func (s *UserServiceServer) GetUserById(ctx context.Context, in *user.GetUserByIdRequest) (*user.UserInfo, error) {
-	l := logic.NewGetUserByIdLogic(ctx, s.svcCtx)
-	return l.GetUserById(in)
+func (s *UserServiceServer) GetCurrentUser(ctx context.Context, in *user.GetUserByIdRequest) (*user.UserInfo, error) {
+	l := logic.NewGetCurrentUserLogic(ctx, s.svcCtx)
+	return l.GetCurrentUser(in)
 }
 
-// 管理功能
-func (s *UserServiceServer) AddUser(ctx context.Context, in *user.AddUserRequest) (*user.AddUserResponse, error) {
+func (s *UserServiceServer) Logout(ctx context.Context, in *user.LogoutRequest) (*user.BaseResponse, error) {
+	l := logic.NewLogoutLogic(ctx, s.svcCtx)
+	return l.Logout(in)
+}
+
+// 用户管理功能
+func (s *UserServiceServer) AddUser(ctx context.Context, in *user.UserAddRequest) (*user.RegisterResponse, error) {
 	l := logic.NewAddUserLogic(ctx, s.svcCtx)
 	return l.AddUser(in)
 }
 
-func (s *UserServiceServer) UpdateUser(ctx context.Context, in *user.UpdateUserRequest) (*user.BaseResponse, error) {
+func (s *UserServiceServer) UpdateUser(ctx context.Context, in *user.UserUpdateRequest) (*user.BaseResponse, error) {
 	l := logic.NewUpdateUserLogic(ctx, s.svcCtx)
 	return l.UpdateUser(in)
 }
@@ -55,7 +60,7 @@ func (s *UserServiceServer) DeleteUser(ctx context.Context, in *user.DeleteUserR
 	return l.DeleteUser(in)
 }
 
-func (s *UserServiceServer) ListUser(ctx context.Context, in *user.ListUserRequest) (*user.ListUserResponse, error) {
-	l := logic.NewListUserLogic(ctx, s.svcCtx)
-	return l.ListUser(in)
+func (s *UserServiceServer) ListUserByPage(ctx context.Context, in *user.UserQueryRequest) (*user.UserQueryResponse, error) {
+	l := logic.NewListUserByPageLogic(ctx, s.svcCtx)
+	return l.ListUserByPage(in)
 }

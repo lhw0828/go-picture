@@ -40,7 +40,7 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 	}
 
 	// 查询用户
-	userModel, err := l.svcCtx.UserDao.FindByUserAccount(in.UserAccount)
+	userModel, err := l.svcCtx.UserDao.FindByUserAccount(l.ctx, in.UserAccount)
 	if err != nil {
 		l.Logger.Errorf("Find user error: %v", err)
 		return nil, err
@@ -66,17 +66,18 @@ func (l *LoginLogic) Login(in *user.LoginRequest) (*user.LoginResponse, error) {
 	}
 
     // 添加返回日志
-    resp := &user.LoginResponse{
-        User: &user.UserInfo{
-            Id:          userModel.Id,
-            UserAccount: userModel.UserAccount,
-            UserName:    userModel.UserName,
-            UserAvatar:  userModel.UserAvatar.String,
-            UserProfile: userModel.UserProfile.String,
-            UserRole:    userModel.UserRole,
-        },
-        AccessToken: token,
-    }
+    // 修复返回数据的类型转换
+	resp := &user.LoginResponse{
+		User: &user.UserInfo{
+			Id:          userModel.Id,
+			UserAccount: userModel.UserAccount,
+			UserName:    userModel.UserName.String,
+			UserAvatar:  userModel.UserAvatar.String,
+			UserProfile: userModel.UserProfile.String,
+			UserRole:    userModel.UserRole,
+		},
+		AccessToken: token,
+	}
     l.Logger.Infof("Login response: %v", resp)
     return resp, nil
 }

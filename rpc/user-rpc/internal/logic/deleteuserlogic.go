@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	"picture/common/errorx"
 	"picture/rpc/user-rpc/internal/svc"
 	"picture/rpc/user-rpc/user"
 
@@ -24,7 +25,17 @@ func NewDeleteUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 }
 
 func (l *DeleteUserLogic) DeleteUser(in *user.DeleteUserRequest) (*user.BaseResponse, error) {
-	// todo: add your logic here and delete this line
+	if in == nil || in.Id == 0 {
+		return nil, errorx.NewCodeError(errorx.ParamError, "参数错误")
+	}
 
-	return &user.BaseResponse{}, nil
+	err := l.svcCtx.UserDao.Delete(l.ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user.BaseResponse{
+		Code: 0,
+		Msg:  "删除成功",
+	}, nil
 }

@@ -32,7 +32,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		UserPassword: req.UserPassword,
 	})
 	if err != nil {
-		logx.Errorf("登陆失败，Login failed: %v", err)
+		l.Logger.Errorf("登录失败，Login failed: %v", err)
 		return nil, err
 	}
 

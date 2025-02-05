@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"picture/common/errorx"
@@ -40,7 +41,7 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 	}
 
 	// 判断账号是否已存在
-	existUser, err := l.svcCtx.UserDao.FindByUserAccount(in.UserAccount)
+	existUser, err := l.svcCtx.UserDao.FindByUserAccount(l.ctx, in.UserAccount)
 	if err != nil {
 		l.Logger.Errorf("查询用户错误，Find user error: %v", err)
 		return nil, err
@@ -60,10 +61,11 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 	newUser := &model.User{
 		UserAccount:  in.UserAccount,
 		UserPassword: encryptPassword,
-		UserName:     "用户" + in.UserAccount,
+		UserName:     sql.NullString{String: "用户" + in.UserAccount, Valid: true},
 		UserRole:     "user",
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
+		IsDelete:     0,
 	}
 
 	result, err := l.svcCtx.UserDao.Insert(l.ctx, newUser) // Add l.ctx as first parameter

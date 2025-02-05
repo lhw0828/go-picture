@@ -29,10 +29,19 @@ func NewAddUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddUserLo
 }
 
 // 管理功能
-func (l *AddUserLogic) AddUser(in *user.AddUserRequest) (*user.AddUserResponse, error) {
+func (l *AddUserLogic) AddUser(in *user.UserAddRequest) (*user.RegisterResponse, error) {
 	// Parameter validation
 	if in == nil || len(in.UserAccount) == 0 {
 		return nil, errorx.NewCodeError(errorx.ParamError, "参数错误")
+	}
+
+	// 检查账号是否已存在
+	existUser, err := l.svcCtx.UserDao.FindByUserAccount(l.ctx, in.UserAccount)
+	if err != nil {
+		return nil, err
+	}
+	if existUser != nil {
+		return nil, errorx.NewCodeError(errorx.UserExist, "账号已存在")
 	}
 
 	// 默认密码加密
@@ -42,15 +51,17 @@ func (l *AddUserLogic) AddUser(in *user.AddUserRequest) (*user.AddUserResponse, 
 		return nil, err
 	}
 
-	newUser := &model.User{ // 修改变量名避免冲突
+	// 创建用户
+	newUser := &model.User{
 		UserAccount:  in.UserAccount,
 		UserPassword: encryptPassword,
-		UserName:     in.UserName,
+		UserName:     sql.NullString{String: in.UserName, Valid: true},
 		UserAvatar:   sql.NullString{String: in.UserAvatar, Valid: true},
 		UserProfile:  sql.NullString{String: in.UserProfile, Valid: true},
 		UserRole:     in.UserRole,
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
+		IsDelete:     0, // 修改为直接使用 int32 类型
 	}
 
 	result, err := l.svcCtx.UserDao.Insert(l.ctx, newUser)
@@ -63,7 +74,7 @@ func (l *AddUserLogic) AddUser(in *user.AddUserRequest) (*user.AddUserResponse, 
 		return nil, err
 	}
 
-	return &user.AddUserResponse{
+	return &user.RegisterResponse{
 		Id: userId,
 	}, nil
 }
