@@ -2,13 +2,13 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
 	"picture/rpc/space-rpc/internal/svc"
 	"picture/rpc/space-rpc/space"
+	"picture/rpc/user-rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -28,57 +28,104 @@ func NewCreateSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 }
 
 // 创建空间
-func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.CreateSpaceResponse, error) {
-	l.Logger.Info("=== Start creating space ===")
-	l.Logger.Infof("Request params: %+v", in)
-
-	// 参数校验
-	if len(in.SpaceName) < 1 {
-		return nil, errorx.NewCodeError(errorx.SpaceNameNotNull, "空间名称不能为空")
+func (l *CreateSpaceLogic) CreateSpace(in *space.CreateSpaceRequest) (*space.SpaceInfo, error) {
+	// 1. 参数校验
+	if in == nil || in.SpaceName == "" {
+		return nil, errorx.NewCodeError(errorx.ParamError, "参数错误")
 	}
 
-	// 设置空间容量
-	var maxSize int64
-	switch in.SpaceLevel {
-	case 0:
-		maxSize = 1024 * 1024 * 1024 // 1GB
-	case 1:
-		maxSize = 5 * 1024 * 1024 * 1024 // 5GB
-	case 2:
-		maxSize = 10 * 1024 * 1024 * 1024 // 10GB
-	default:
-		return nil, errorx.NewCodeError(errorx.InvalidSpaceLevel, "无效的空间级别")
+	// 2. 检查用户是否存在
+	userInfo, err := l.svcCtx.UserRpc.GetCurrentUser(l.ctx, &user.GetUserByIdRequest{Id: in.UserId})
+	if err != nil {
+		return nil, err
+	}
+	if userInfo == nil {
+		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
 	}
 
-	// 创建空间
-	newSpace := &model.Space{
+	// 3. 检查用户是否已有同类型空间
+	exists, err := l.svcCtx.SpaceDao.ExistsByUserIdAndType(l.ctx, in.UserId, in.SpaceType)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, errorx.NewCodeError(errorx.OnlyCreateOneSpaceEachType, "每个用户每类空间只能创建一个")
+	}
+
+	// 4. 创建空间
+	now := time.Now()
+	spaceModel := &model.Space{
 		SpaceName:  in.SpaceName,
-		SpaceLevel: 0, // normal
-		SpaceType:  0, // private
-		MaxSize:    maxSize,
-		MaxCount:   1000, // 默认1000张图片
-		TotalSize:  0,
-		TotalCount: 0,
+		SpaceType:  in.SpaceType,
+		SpaceLevel: in.SpaceLevel,
 		UserId:     in.UserId,
-		CreateTime: time.Now(),
-		EditTime:   time.Now(),
-		UpdateTime: time.Now(),
-		IsDelete:   sql.NullInt32{Int32: 0, Valid: true},
+		CreateTime: now,
+		EditTime:   now,
+		UpdateTime: now,
 	}
 
-	result, err := l.svcCtx.SpaceDao.Insert(newSpace)
+	// 5. 根据空间级别设置配额
+	l.fillSpaceByLevel(spaceModel)
+
+	// 6. 保存到数据库
+	result, err := l.svcCtx.SpaceDao.Insert(l.ctx, spaceModel)
 	if err != nil {
-		l.Logger.Errorf("Insert space error: %v", err)
-		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
+		return nil, err
 	}
 
-	spaceId, err := result.LastInsertId()
+	// 获取插入记录的ID
+	lastId, err := result.LastInsertId()
 	if err != nil {
-		l.Logger.Errorf("Get last insert id error: %v", err)
-		return nil, errorx.NewCodeError(errorx.CreateSpaceFailed, "创建空间失败")
+		return nil, err
+	}
+	spaceModel.Id = lastId
+
+	// 7. 如果是团队空间，创建空间成员记录
+	if spaceModel.SpaceType == 1 {
+		_, err = l.svcCtx.SpaceMemberDao.Insert(l.ctx, &model.SpaceMember{
+			SpaceId:    spaceModel.Id,
+			UserId:     in.UserId,
+			SpaceRole:  "admin",
+			CreateTime: time.Now(),
+			UpdateTime: time.Now(),
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return &space.CreateSpaceResponse{
-		Id: spaceId,
+	return &space.SpaceInfo{
+		Id:         spaceModel.Id,
+		SpaceName:  spaceModel.SpaceName,
+		SpaceType:  spaceModel.SpaceType,
+		SpaceLevel: spaceModel.SpaceLevel,
+		MaxSize:    spaceModel.MaxSize,
+		MaxCount:   spaceModel.MaxCount,
+		TotalSize:  spaceModel.TotalSize,
+		TotalCount: spaceModel.TotalCount,
+		UserId:     spaceModel.UserId,
+		CreateTime: spaceModel.CreateTime.Format(time.RFC3339),
+		UpdateTime: spaceModel.UpdateTime.Format(time.RFC3339),
 	}, nil
+}
+
+// fillSpaceByLevel 根据空间级别设置配额
+func (l *CreateSpaceLogic) fillSpaceByLevel(space *model.Space) {
+	switch space.SpaceLevel {
+	case 0: // 普通版
+		space.MaxSize = 1 << 30 // 1GB
+		space.MaxCount = 1000   // 1000个文件
+	case 1: // 专业版
+		space.MaxSize = 10 << 30 // 10GB
+		space.MaxCount = 10000   // 10000个文件
+	case 2: // 旗舰版
+		space.MaxSize = 100 << 30 // 100GB
+		space.MaxCount = 100000   // 100000个文件
+	default:
+		space.MaxSize = 1 << 30 // 默认1GB
+		space.MaxCount = 1000   // 默认1000个文件
+	}
+	// 初始化使用量
+	space.TotalSize = 0
+	space.TotalCount = 0
 }

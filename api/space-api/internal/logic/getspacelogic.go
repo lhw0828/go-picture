@@ -1,11 +1,11 @@
 package logic
 
 import (
-	context "context"
+	"context"
 
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
-	"picture/common/errorx"
+	request "picture/common/types"
 	"picture/rpc/space-rpc/space"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -17,6 +17,7 @@ type GetSpaceLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
+// 获取空间信息
 func NewGetSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpaceLogic {
 	return &GetSpaceLogic{
 		Logger: logx.WithContext(ctx),
@@ -25,37 +26,27 @@ func NewGetSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpace
 	}
 }
 
-func (l *GetSpaceLogic) GetSpace(req *types.GetSpaceReq) (resp *types.GetSpaceResp, err error) {
-	// 打印请求参数
-	l.Logger.Infof("获取空间信息请求参数: %+v", req)
-
-	if req == nil || req.Id <= 0 {
-		return nil, errorx.NewCodeError(errorx.ParamError, errorx.ParamErrorMsg)
-	}
-
-	// 调用 RPC 获取空间信息
-	spaceInfo, err := l.svcCtx.SpaceRpc.GetSpace(l.ctx, &space.GetSpaceRequest{
-		Id: req.Id,
+func (l *GetSpaceLogic) GetSpace(req *request.GetRequest, userId int64) (*types.SpaceInfo, error) {
+	resp, err := l.svcCtx.SpaceRpc.GetSpace(l.ctx, &space.GetSpaceRequest{
+		Id:     req.Id,
+		UserId: userId,
 	})
-	if spaceInfo == nil {
-		return nil, errorx.NewCodeError(errorx.SpaceNotExist, errorx.SpaceNotExistMsg)
-	}
 	if err != nil {
-		l.Logger.Errorf("获取空间信息失败: %v", err)
-		return nil, errorx.NewCodeError(errorx.SystemErr, errorx.SystemErrMsg)
+		return nil, err
 	}
 
-	return &types.GetSpaceResp{
-		Id:         spaceInfo.Id,
-		SpaceName:  spaceInfo.SpaceName,
-		SpaceType:  spaceInfo.SpaceType,
-		SpaceLevel: spaceInfo.SpaceLevel,
-		MaxSize:    spaceInfo.MaxSize,
-		MaxCount:   spaceInfo.MaxCount,
-		TotalSize:  spaceInfo.TotalSize,
-		TotalCount: spaceInfo.TotalCount,
-		UserId:     spaceInfo.UserId,
-		CreateTime: spaceInfo.CreateTime,
-		UpdateTime: spaceInfo.UpdateTime,
+	// 转换为 API 响应格式
+	return &types.SpaceInfo{
+		Id:         resp.Id,
+		SpaceName:  resp.SpaceName,
+		SpaceType:  resp.SpaceType,
+		SpaceLevel: resp.SpaceLevel,
+		MaxSize:    resp.MaxSize,
+		MaxCount:   resp.MaxCount,
+		TotalSize:  resp.TotalSize,
+		TotalCount: resp.TotalCount,
+		UserId:     resp.UserId,
+		CreateTime: resp.CreateTime,
+		UpdateTime: resp.UpdateTime,
 	}, nil
 }

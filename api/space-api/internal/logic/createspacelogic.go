@@ -2,12 +2,12 @@ package logic
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
+	"picture/common/errorx"
 	"picture/rpc/space-rpc/space"
+	"picture/rpc/user-rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,45 +27,48 @@ func NewCreateSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Creat
 	}
 }
 
-func (l *CreateSpaceLogic) CreateSpace(req *types.CreateSpaceReq) (resp *types.CreateSpaceResp, err error) {
-	l.Logger.Infof("Create space request: %+v", req)
-
-	// 从上下文获取用户ID
-	userId := l.ctx.Value("userId")
-	if userId == nil {
-		l.Logger.Error("Failed to get userId from context")
-		return nil, fmt.Errorf("获取用户ID失败")
-	}
-	l.Logger.Infof("UserId from context: %v, type: %T", userId, userId)
-
-	var uid int64
-	switch v := userId.(type) {
-	case json.Number:
-		uid, err = v.Int64()
-		if err != nil {
-			l.Logger.Errorf("Convert userId error: %v", err)
-			return nil, fmt.Errorf("用户ID格式错误")
-		}
-	default:
-		l.Logger.Errorf("Invalid userId type: %T", userId)
-		return nil, fmt.Errorf("用户ID类型错误")
+func (l *CreateSpaceLogic) CreateSpace(req *types.CreateSpaceReq, userId int64) (resp *types.SpaceInfo, err error) {
+	// 1. 参数校验
+	if req == nil {
+		return nil, errorx.NewCodeError(errorx.ParamError, "参数不能为空")
 	}
 
-	l.Logger.Infof("Calling SpaceRpc.CreateSpace with userId: %d", uid)
-	// 调用 RPC 服务
-	res, err := l.svcCtx.SpaceRpc.CreateSpace(l.ctx, &space.CreateSpaceRequest{
+	// 2. 获取当前登录用户
+	userInfo, err := l.svcCtx.UserRpc.GetCurrentUser(l.ctx, &user.GetUserByIdRequest{Id: userId})
+	if err != nil {
+		return nil, err
+	}
+	if userInfo == nil {
+		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
+	}
+
+	// 3. 校验权限，非管理员只能创建普通级别的空间
+	if req.SpaceLevel != 0 && userInfo.UserRole != "admin" {
+		return nil, errorx.NewCodeError(errorx.ForbiddenErr, "无权限创建指定级别的空间")
+	}
+
+	// 4. 调用 RPC 创建空间
+	spaceInfo, err := l.svcCtx.SpaceRpc.CreateSpace(l.ctx, &space.CreateSpaceRequest{
 		SpaceName:  req.SpaceName,
 		SpaceType:  req.SpaceType,
 		SpaceLevel: req.SpaceLevel,
-		UserId:     uid,
+		UserId:     userId,
 	})
 	if err != nil {
-		l.Logger.Errorf("Create space error: %v", err)
 		return nil, err
 	}
 
-	l.Logger.Infof("Space created successfully with id: %d", res.Id)
-	return &types.CreateSpaceResp{
-		Id: res.Id,
+	return &types.SpaceInfo{
+		Id:         spaceInfo.Id,
+		SpaceName:  spaceInfo.SpaceName,
+		SpaceType:  spaceInfo.SpaceType,
+		SpaceLevel: spaceInfo.SpaceLevel,
+		MaxSize:    spaceInfo.MaxSize,
+		MaxCount:   spaceInfo.MaxCount,
+		TotalSize:  spaceInfo.TotalSize,
+		TotalCount: spaceInfo.TotalCount,
+		UserId:     spaceInfo.UserId,
+		CreateTime: spaceInfo.CreateTime,
+		UpdateTime: spaceInfo.UpdateTime,
 	}, nil
 }

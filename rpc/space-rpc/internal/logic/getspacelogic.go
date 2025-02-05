@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"time"
 
 	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/svc"
@@ -26,36 +25,51 @@ func NewGetSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpace
 }
 
 // 获取空间信息
-func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.GetSpaceResponse, error) {
-	// 打印请求参数
-	l.Logger.Infof("获取空间信息请求: %+v", in)
-
-	// 参数校验
+func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.SpaceInfo, error) {
+	// 1. 参数校验
 	if in == nil || in.Id <= 0 {
-		return nil, errorx.NewCodeError(errorx.ParamError, errorx.ParamErrorMsg)
+		return nil, errorx.NewCodeError(errorx.ParamError, "参数错误")
 	}
 
+	// 2. 获取空间信息
 	spaceInfo, err := l.svcCtx.SpaceDao.FindById(in.Id)
-	if spaceInfo == nil {
-		l.Logger.Infof("空间不存在, id: %d", in.Id)
-		return nil, errorx.NewCodeError(errorx.SpaceNotExist, errorx.SpaceNotExistMsg)
-	}
 	if err != nil {
-		l.Logger.Errorf("获取空间信息失败，Find space error: %v", err)
-		return nil, errorx.NewCodeError(errorx.GetSpaceFailed, errorx.GetSpaceFailedMsg)
+		return nil, err
+	}
+	if spaceInfo == nil {
+		return nil, errorx.NewCodeError(errorx.NotFoundError, "空间不存在")
 	}
 
-	return &space.GetSpaceResponse{
+	// 3. 获取当前用户权限
+	permissions, err := l.svcCtx.SpaceDao.GetUserPermissions(l.ctx, in.Id, in.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. 检查是否有查看权限
+	hasViewPermission := false
+	for _, perm := range permissions {
+		if perm == "space:view" {
+			hasViewPermission = true
+			break
+		}
+	}
+	if !hasViewPermission {
+		return nil, errorx.NewCodeError(errorx.ForbiddenErr, "无权查看该空间")
+	}
+
+	// 5. 返回空间信息
+	return &space.SpaceInfo{
 		Id:         spaceInfo.Id,
 		SpaceName:  spaceInfo.SpaceName,
-		SpaceLevel: int32(spaceInfo.SpaceLevel),
-		SpaceType:  int32(spaceInfo.SpaceType),
+		SpaceType:  spaceInfo.SpaceType,
+		SpaceLevel: spaceInfo.SpaceLevel,
 		MaxSize:    spaceInfo.MaxSize,
 		MaxCount:   spaceInfo.MaxCount,
 		TotalSize:  spaceInfo.TotalSize,
 		TotalCount: spaceInfo.TotalCount,
 		UserId:     spaceInfo.UserId,
-		CreateTime: spaceInfo.CreateTime.Format(time.RFC3339),
-		UpdateTime: spaceInfo.UpdateTime.Format(time.RFC3339),
+		CreateTime: spaceInfo.CreateTime.Format("2006-01-02 15:04:05"),
+		UpdateTime: spaceInfo.UpdateTime.Format("2006-01-02 15:04:05"),
 	}, nil
 }

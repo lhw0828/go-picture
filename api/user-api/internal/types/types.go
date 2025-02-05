@@ -70,6 +70,7 @@ type UserUpdateReq struct {
 	UserName    string `json:"userName,optional"`
 	UserAvatar  string `json:"userAvatar,optional"`
 	UserProfile string `json:"userProfile,optional"`
+	UserRole    string `json:"userRole,optional"`
 }
 
 type UserVO struct {

@@ -15,24 +15,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				// 更新团队空间使用容量
-				Method:  http.MethodPut,
-				Path:    "/api/v1/space/:id",
-				Handler: updateSpaceHandler(serverCtx),
-			},
-			{
-				// 删除团队空间
-				Method:  http.MethodDelete,
-				Path:    "/api/v1/space/:id",
-				Handler: deleteSpaceHandler(serverCtx),
-			},
-			{
-				// 获取空间列表
-				Method:  http.MethodGet,
-				Path:    "/api/v1/space/list",
-				Handler: listSpaceHandler(serverCtx),
-			},
-			{
 				// 创建空间
 				Method:  http.MethodPost,
 				Path:    "/space",
@@ -45,22 +27,34 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: getSpaceHandler(serverCtx),
 			},
 			{
-				// 添加空间成员
-				Method:  http.MethodPost,
-				Path:    "/space/:id/member",
-				Handler: addSpaceMemberHandler(serverCtx),
-			},
-			{
-				// 获取空间成员列表
-				Method:  http.MethodGet,
-				Path:    "/space/:id/members",
-				Handler: listSpaceMembersHandler(serverCtx),
-			},
-			{
-				// 更新空间使用容量
+				// 更新空间信息
 				Method:  http.MethodPut,
-				Path:    "/space/:id/usage",
-				Handler: updateSpaceUsageHandler(serverCtx),
+				Path:    "/space/:id",
+				Handler: updateSpaceHandler(serverCtx),
+			},
+			{
+				// 删除空间
+				Method:  http.MethodDelete,
+				Path:    "/space/:id",
+				Handler: deleteSpaceHandler(serverCtx),
+			},
+			{
+				// 获取空间分析数据
+				Method:  http.MethodGet,
+				Path:    "/space/:id/analysis",
+				Handler: getSpaceAnalysisHandler(serverCtx),
+			},
+			{
+				// 获取空间信息（封装类）
+				Method:  http.MethodGet,
+				Path:    "/space/:id/vo",
+				Handler: getSpaceVOHandler(serverCtx),
+			},
+			{
+				// 获取空间列表
+				Method:  http.MethodGet,
+				Path:    "/space/list",
+				Handler: listSpaceHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

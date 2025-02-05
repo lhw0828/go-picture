@@ -5,6 +5,14 @@ type PageRequest struct {
 	PageSize int `json:"pageSize" form:"pageSize"`
 }
 
+type DeleteRequest struct {
+	Id int64 `path:"id"`
+}
+
+type GetRequest struct {
+	Id int64 `path:"id"`
+}
+
 type PageResponse struct {
 	Total     int64       `json:"total"`
 	List      interface{} `json:"list"`

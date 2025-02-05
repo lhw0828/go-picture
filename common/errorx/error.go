@@ -20,12 +20,15 @@ const (
 
 // 空间相关错误码 (403xx)
 const (
-	SpaceNotEnough    = 40300 // 空间容量不足
-	SpaceNotExist     = 40301 // 空间不存在
-	SpaceNameNotNull  = 40302 // 空间名称不能为空
-	CreateSpaceFailed = 40303 // 创建空间失败
-	InvalidSpaceLevel = 40304 // 无效的空间等级
-	GetSpaceFailed    = 40305 // 获取空间失败
+	SpaceNotEnough             = 40300 // 空间容量不足
+	SpaceNotExist              = 40301 // 空间不存在
+	SpaceNameNotNull           = 40302 // 空间名称不能为空
+	CreateSpaceFailed          = 40303 // 创建空间失败
+	InvalidSpaceLevel          = 40304 // 无效的空间等级
+	GetSpaceFailed             = 40305 // 获取空间失败
+	OnlyCreateOneSpaceEachType = 40306 // 每个类型只能创建一个空间
+	DeleteSpaceFailed          = 40307 // 删除空间失败
+	UpdateSpaceFailed          = 40308 // 更新空间失败
 )
 
 // 团队相关错误码 (404xx)
@@ -86,12 +89,15 @@ const (
 	NotFoundErrMsg = "资源不存在"
 
 	// 空间相关错误信息
-	SpaceNotEnoughMsg    = "空间容量不足"
-	SpaceNotExistMsg     = "空间不存在"
-	SpaceNameNotNullMsg  = "空间名称不能为空"
-	CreateSpaceFailedMsg = "创建空间失败"
-	InvalidSpaceLevelMsg = "无效的空间等级"
-	GetSpaceFailedMsg    = "获取空间失败"
+	SpaceNotEnoughMsg             = "空间容量不足"
+	SpaceNotExistMsg              = "空间不存在"
+	SpaceNameNotNullMsg           = "空间名称不能为空"
+	CreateSpaceFailedMsg          = "创建空间失败"
+	InvalidSpaceLevelMsg          = "无效的空间等级"
+	GetSpaceFailedMsg             = "获取空间失败"
+	OnlyCreateOneSpaceEachTypeMsg = "每个类型只能创建一个空间"
+	DeleteSpaceFailedMsg          = "删除空间失败"
+	UpdateSpaceFailedMsg          = "更新空间失败"
 
 	// 团队相关错误信息
 	NotTeamMemberMsg     = "不是团队成员"

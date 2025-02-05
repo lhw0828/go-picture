@@ -42,6 +42,10 @@ func (l *UpdateUserLogic) UpdateUser(in *user.UserUpdateRequest) (*user.BaseResp
 	existUser.UserName = sql.NullString{String: in.UserName, Valid: true}
 	existUser.UserAvatar = sql.NullString{String: in.UserAvatar, Valid: true}
 	existUser.UserProfile = sql.NullString{String: in.UserProfile, Valid: true}
+	// 如果传入的用户角色为空，不修改，否则修改
+	if in.UserRole != "" {
+		existUser.UserRole = in.UserRole
+	}
 	existUser.UpdateTime = time.Now()
 
 	err = l.svcCtx.UserDao.Update(l.ctx, existUser)
