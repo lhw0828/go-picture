@@ -50,27 +50,10 @@ service user {
 }
 
 @server (
-	jwt:    Auth
-	prefix: api/v1
-)
-service user {
-	@doc "获取当前用户信息"
-	@handler getCurrentUser
-	get /user/current returns (LoginResp)
-
-	@doc "用户注销"
-	@handler logout
-	post /user/logout returns (BaseResp)
-
-	@doc "获取用户信息"
-	@handler getUserById
-	get /user/get/:id returns (UserVO)
-}
-
-@server (
-	jwt:    Auth
-	prefix: api/v1
-	group:  admin
+	jwt:        Auth // JWT 中间件先执行
+	middleware: Admin // Admin 中间件后执行
+	prefix:     api/v1
+	group:      admin
 )
 service user {
 	@doc "创建用户"
