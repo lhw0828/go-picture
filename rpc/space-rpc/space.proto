@@ -59,7 +59,8 @@ message ListSpaceRequest {
     int64 current = 1;
     int64 pageSize = 2;
     string spaceName = 3;
-    optional int32 spaceType = 4;
+     int32 spaceType = 4;
+    int64 userId = 5;
 }
 
 // 获取空间列表响应

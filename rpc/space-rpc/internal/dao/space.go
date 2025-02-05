@@ -141,3 +141,58 @@ func (d *SpaceDao) Update(ctx context.Context, space *model.Space) error {
 
 	return nil
 }
+
+// Count 获取空间总数
+func (d *SpaceDao) Count(ctx context.Context, spaceName string, spaceType int32) (int64, error) {
+	query := "select count(*) from space where isDelete = 0"
+	params := make([]interface{}, 0)
+
+	if spaceName != "" {
+		query += " and spaceName like ?"
+		params = append(params, "%"+spaceName+"%")
+	}
+	if spaceType >= 0 {
+		query += " and spaceType = ?"
+		params = append(params, spaceType)
+	}
+
+	logx.Infof("SQL: %s, params: %v", query, params)
+
+	var count int64
+	err := d.conn.QueryRowCtx(ctx, &count, query, params...)
+	if err != nil {
+		logx.Errorf("获取空间总数失败: %v", err)
+		return 0, err
+	}
+
+	return count, nil
+}
+
+// List 分页查询空间列表
+func (d *SpaceDao) List(ctx context.Context, current, pageSize int64, spaceName string, spaceType int32) ([]*model.Space, error) {
+	query := "select * from space where isDelete = 0"
+	params := make([]interface{}, 0)
+
+	if spaceName != "" {
+		query += " and spaceName like ?"
+		params = append(params, "%"+spaceName+"%")
+	}
+	if spaceType >= 0 {
+		query += " and spaceType = ?"
+		params = append(params, spaceType)
+	}
+
+	query += " order by createTime desc limit ?, ?"
+	params = append(params, (current-1)*pageSize, pageSize)
+
+	logx.Infof("SQL: %s, params: %v", query, params)
+
+	var spaces []*model.Space
+	err := d.conn.QueryRowsCtx(ctx, &spaces, query, params...)
+	if err != nil {
+		logx.Errorf("分页查询空间列表失败: %v", err)
+		return nil, err
+	}
+
+	return spaces, nil
+}
