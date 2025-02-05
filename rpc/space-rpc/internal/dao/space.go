@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -62,10 +63,10 @@ func (d *SpaceDao) FindById(id int64) (*model.Space, error) {
 func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) error {
 	var query string
 	if operation == "add" {
-		query = `update space set totalSize = totalSize + ?, totalCount = totalCount + 1 
+		query = `update space set totalSize = totalSize + ?, totalCount = totalCount + 1
                  where id = ? and maxSize >= totalSize + ?`
 	} else {
-		query = `update space set totalSize = totalSize - ?, totalCount = totalCount - 1 
+		query = `update space set totalSize = totalSize - ?, totalCount = totalCount - 1
                  where id = ? and totalSize >= ?`
 	}
 
@@ -113,7 +114,7 @@ func (d *SpaceDao) GetUsage(spaceId int64) (int64, int64, error) {
 // ExistsByUserIdAndType 检查用户是否已有同类型空间
 func (d *SpaceDao) ExistsByUserIdAndType(ctx context.Context, userId int64, spaceType int32) (bool, error) {
 	query := `select count(*) from space where userId = ? and spaceType = ? and isDelete = 0`
-	
+
 	var count int
 	err := d.conn.QueryRowCtx(ctx, &count, query, userId, spaceType)
 	if err != nil {
@@ -122,4 +123,21 @@ func (d *SpaceDao) ExistsByUserIdAndType(ctx context.Context, userId int64, spac
 	}
 
 	return count > 0, nil
+}
+
+// 在 SpaceDao 中添加删除方法
+func (d *SpaceDao) Delete(ctx context.Context, id int64) error {
+	query := `update space set isDelete = 1, updateTime = ? where id = ?`
+	result, err := d.conn.ExecCtx(ctx, query, time.Now(), id)
+	if err != nil {
+		return err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return errorx.NewCodeError(errorx.DeleteSpaceFailed, "删除空间失败")
+	}
+	return nil
 }

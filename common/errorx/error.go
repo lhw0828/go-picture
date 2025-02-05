@@ -27,6 +27,7 @@ const (
 	InvalidSpaceLevel          = 40304 // 无效的空间等级
 	GetSpaceFailed             = 40305 // 获取空间失败
 	OnlyCreateOneSpaceEachType = 40306 // 每个类型只能创建一个空间
+	DeleteSpaceFailed          = 40307 // 删除空间失败
 )
 
 // 团队相关错误码 (404xx)
@@ -94,6 +95,7 @@ const (
 	InvalidSpaceLevelMsg          = "无效的空间等级"
 	GetSpaceFailedMsg             = "获取空间失败"
 	OnlyCreateOneSpaceEachTypeMsg = "每个类型只能创建一个空间"
+	DeleteSpaceFailedMsg          = "删除空间失败"
 
 	// 团队相关错误信息
 	NotTeamMemberMsg     = "不是团队成员"

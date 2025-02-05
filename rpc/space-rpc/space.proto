@@ -21,12 +21,12 @@ message CreateSpaceRequest {
 message SpaceInfo {
     int64 id = 1;
     string spaceName = 2;
-    int32 spaceLevel = 3;    
-    int32 spaceType = 4;     
-    int64 maxSize = 5;       
-    int64 maxCount = 6;      
-    int64 totalSize = 7;     
-    int64 totalCount = 8;    
+    int32 spaceLevel = 3;
+    int32 spaceType = 4;
+    int64 maxSize = 5;
+    int64 maxCount = 6;
+    int64 totalSize = 7;
+    int64 totalCount = 8;
     int64 userId = 9;
     string createTime = 10;
     string updateTime = 11;
@@ -50,6 +50,7 @@ message UpdateSpaceRequest {
 // 删除空间请求
 message DeleteSpaceRequest {
     int64 id = 1;
+    int64 userId = 2;
 }
 
 // 获取空间列表请求
