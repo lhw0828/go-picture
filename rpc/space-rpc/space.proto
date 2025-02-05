@@ -41,10 +41,10 @@ message GetSpaceRequest {
 message UpdateSpaceRequest {
     int64 id = 1;
     string spaceName = 2;
-    int32 spaceType = 3;
-    int32 spaceLevel = 4;
-    int64 maxSize = 5;
-    int64 maxCount = 6;
+    int32 spaceLevel = 3;
+    int64 maxSize = 4;
+    int64 maxCount = 5;
+    int64 userId = 6;
 }
 
 // 删除空间请求

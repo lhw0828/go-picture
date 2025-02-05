@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"picture/api/space-api/internal/logic"
@@ -9,6 +8,7 @@ import (
 	"picture/common/errorx"
 	"picture/common/response"
 	"picture/common/types"
+	"picture/common/utils"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -24,8 +24,7 @@ func deleteSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		// 获取当前登录用户
-		userIdNumber := r.Context().Value("userId").(json.Number)
-		userId, err := userIdNumber.Int64()
+		userId, err := utils.GetCurrentUserId(r)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return

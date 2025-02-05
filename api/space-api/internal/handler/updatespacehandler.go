@@ -3,10 +3,13 @@ package handler
 import (
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"picture/api/space-api/internal/logic"
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
+	"picture/common/response"
+	"picture/common/utils"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 更新空间信息
@@ -18,12 +21,19 @@ func updateSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
+		// 获取当前登录用户
+		userId, err := utils.GetCurrentUserId(r)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+
 		l := logic.NewUpdateSpaceLogic(r.Context(), svcCtx)
-		resp, err := l.UpdateSpace(&req)
+		resp, err := l.UpdateSpace(&req, userId)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, response.Success(resp))
 		}
 	}
 }

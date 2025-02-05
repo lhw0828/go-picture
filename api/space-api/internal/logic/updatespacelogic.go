@@ -5,6 +5,7 @@ import (
 
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
+	"picture/rpc/space-rpc/space"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,8 +25,21 @@ func NewUpdateSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Updat
 	}
 }
 
-func (l *UpdateSpaceLogic) UpdateSpace(req *types.UpdateSpaceReq) (resp *types.BaseResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *UpdateSpaceLogic) UpdateSpace(req *types.UpdateSpaceReq, userId int64) (*types.BaseResp, error) {
+	resp, err := l.svcCtx.SpaceRpc.UpdateSpace(l.ctx, &space.UpdateSpaceRequest{
+		Id:         req.Id,
+		SpaceName:  req.SpaceName,
+		SpaceLevel: req.SpaceLevel,
+		MaxSize:    req.MaxSize,
+		MaxCount:   req.MaxCount,
+		UserId:     userId,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.BaseResp{
+		Code: resp.Code,
+		Msg:  resp.Msg,
+	}, nil
 }

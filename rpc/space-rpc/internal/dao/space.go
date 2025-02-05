@@ -60,38 +60,6 @@ func (d *SpaceDao) FindById(id int64) (*model.Space, error) {
 	return &space, nil
 }
 
-func (d *SpaceDao) UpdateUsage(spaceId int64, size int64, operation string) error {
-	var query string
-	if operation == "add" {
-		query = `update space set totalSize = totalSize + ?, totalCount = totalCount + 1
-                 where id = ? and maxSize >= totalSize + ?`
-	} else {
-		query = `update space set totalSize = totalSize - ?, totalCount = totalCount - 1
-                 where id = ? and totalSize >= ?`
-	}
-
-	// 打印 SQL 语句和参数，方便调试
-	logx.Infof("SQL: %s, params: [size=%d, spaceId=%d]", query, size, spaceId)
-
-	result, err := d.conn.Exec(query, size, spaceId, size)
-	if err != nil {
-		logx.Errorf("执行更新失败: %v", err)
-		return err
-	}
-
-	affected, err := result.RowsAffected()
-	if err != nil {
-		logx.Errorf("获取影响行数失败: %v", err)
-		return err
-	}
-
-	if affected == 0 {
-		return errorx.NewCodeError(errorx.SpaceNotEnough, "空间容量不足或操作无效")
-	}
-
-	return nil
-}
-
 func (d *SpaceDao) GetUsage(spaceId int64) (int64, int64, error) {
 	var space struct {
 		MaxSize   int64 `db:"maxSize"`
@@ -139,5 +107,37 @@ func (d *SpaceDao) Delete(ctx context.Context, id int64) error {
 	if affected == 0 {
 		return errorx.NewCodeError(errorx.DeleteSpaceFailed, "删除空间失败")
 	}
+	return nil
+}
+
+// Update 更新空间信息
+func (d *SpaceDao) Update(ctx context.Context, space *model.Space) error {
+	query := `update space set spaceName = ?, spaceLevel = ?, maxSize = ?, maxCount = ?,
+		editTime = ?, updateTime = ? where id = ? and isDelete = 0`
+
+	// 打印 SQL 语句和参数，方便调试
+	logx.Infof("SQL: %s, params: %+v", query, space)
+
+	result, err := d.conn.ExecCtx(ctx, query,
+		space.SpaceName,
+		space.SpaceLevel,
+		space.MaxSize,
+		space.MaxCount,
+		time.Now(),
+		time.Now(),
+		space.Id)
+	if err != nil {
+		logx.Errorf("更新空间失败: %v", err)
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return errorx.NewCodeError(errorx.UpdateSpaceFailed, "更新空间失败")
+	}
+
 	return nil
 }

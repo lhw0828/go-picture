@@ -81,8 +81,8 @@ type TagCount struct {
 }
 
 type UpdateSpaceReq struct {
+	Id         int64  `path:"id"`
 	SpaceName  string `json:"spaceName,optional"`
-	SpaceType  int32  `json:"spaceType,optional"`
 	SpaceLevel int32  `json:"spaceLevel,optional"`
 	MaxSize    int64  `json:"maxSize,optional"`
 	MaxCount   int64  `json:"maxCount,optional"`
