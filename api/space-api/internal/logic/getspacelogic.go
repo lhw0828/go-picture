@@ -37,17 +37,16 @@ func (l *GetSpaceLogic) GetSpace(req *request.GetRequest, userId int64) (*types.
 
 	// 转换为 API 响应格式
 	return &types.SpaceInfo{
-		Id:          resp.Id,
-		SpaceName:   resp.SpaceName,
-		SpaceType:   resp.SpaceType,
-		SpaceLevel:  resp.SpaceLevel,
-		MaxSize:     resp.MaxSize,
-		MaxCount:    resp.MaxCount,
-		TotalSize:   resp.TotalSize,
-		TotalCount:  resp.TotalCount,
-		UserId:      resp.UserId,
-		CreateTime:  resp.CreateTime,
-		UpdateTime:  resp.UpdateTime,
-		Permissions: []string{}, // 添加空的权限列表
+		Id:         resp.Id,
+		SpaceName:  resp.SpaceName,
+		SpaceType:  resp.SpaceType,
+		SpaceLevel: resp.SpaceLevel,
+		MaxSize:    resp.MaxSize,
+		MaxCount:   resp.MaxCount,
+		TotalSize:  resp.TotalSize,
+		TotalCount: resp.TotalCount,
+		UserId:     resp.UserId,
+		CreateTime: resp.CreateTime,
+		UpdateTime: resp.UpdateTime,
 	}, nil
 }

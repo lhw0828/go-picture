@@ -64,3 +64,14 @@ func (s *SpaceServiceServer) GetSpaceAnalysis(ctx context.Context, in *space.Get
 	l := logic.NewGetSpaceAnalysisLogic(ctx, s.svcCtx)
 	return l.GetSpaceAnalysis(in)
 }
+
+// 获取空间权限
+func (s *SpaceServiceServer) GetSpacePermissions(ctx context.Context, in *space.GetSpacePermissionsRequest) (*space.GetSpacePermissionsResponse, error) {
+	l := logic.NewGetSpacePermissionsLogic(ctx, s.svcCtx)
+	return l.GetSpacePermissions(in)
+}
+
+func (s *SpaceServiceServer) GetSpaceVO(ctx context.Context, in *space.GetSpaceVORequest) (*space.SpaceVO, error) {
+	l := logic.NewGetSpaceVOLogic(ctx, s.svcCtx)
+	return l.GetSpaceVO(in)
+}

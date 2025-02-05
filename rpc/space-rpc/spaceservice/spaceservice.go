@@ -14,24 +14,29 @@ import (
 )
 
 type (
-	BaseResponse             = space.BaseResponse
-	CategoryCount            = space.CategoryCount
-	CreateSpaceRequest       = space.CreateSpaceRequest
-	DeleteSpaceRequest       = space.DeleteSpaceRequest
-	GetSpaceAnalysisRequest  = space.GetSpaceAnalysisRequest
-	GetSpaceRequest          = space.GetSpaceRequest
-	ListSpaceMembersRequest  = space.ListSpaceMembersRequest
-	ListSpaceMembersResponse = space.ListSpaceMembersResponse
-	ListSpaceRequest         = space.ListSpaceRequest
-	ListSpaceResponse        = space.ListSpaceResponse
-	SizeCount                = space.SizeCount
-	SpaceAnalysis            = space.SpaceAnalysis
-	SpaceInfo                = space.SpaceInfo
-	SpaceMember              = space.SpaceMember
-	SpaceUsage               = space.SpaceUsage
-	SpaceUsageTrend          = space.SpaceUsageTrend
-	TagCount                 = space.TagCount
-	UpdateSpaceRequest       = space.UpdateSpaceRequest
+	BaseResponse                = space.BaseResponse
+	CategoryCount               = space.CategoryCount
+	CreateSpaceRequest          = space.CreateSpaceRequest
+	DeleteSpaceRequest          = space.DeleteSpaceRequest
+	GetSpaceAnalysisRequest     = space.GetSpaceAnalysisRequest
+	GetSpacePermissionsRequest  = space.GetSpacePermissionsRequest
+	GetSpacePermissionsResponse = space.GetSpacePermissionsResponse
+	GetSpaceRequest             = space.GetSpaceRequest
+	GetSpaceVORequest           = space.GetSpaceVORequest
+	ListSpaceMembersRequest     = space.ListSpaceMembersRequest
+	ListSpaceMembersResponse    = space.ListSpaceMembersResponse
+	ListSpaceRequest            = space.ListSpaceRequest
+	ListSpaceResponse           = space.ListSpaceResponse
+	SizeCount                   = space.SizeCount
+	SpaceAnalysis               = space.SpaceAnalysis
+	SpaceInfo                   = space.SpaceInfo
+	SpaceMember                 = space.SpaceMember
+	SpaceUsage                  = space.SpaceUsage
+	SpaceUsageTrend             = space.SpaceUsageTrend
+	SpaceVO                     = space.SpaceVO
+	TagCount                    = space.TagCount
+	UpdateSpaceRequest          = space.UpdateSpaceRequest
+	UserInfo                    = space.UserInfo
 
 	SpaceService interface {
 		// 创建空间
@@ -48,6 +53,9 @@ type (
 		ListSpaceMembers(ctx context.Context, in *ListSpaceMembersRequest, opts ...grpc.CallOption) (*ListSpaceMembersResponse, error)
 		// 获取空间分析数据
 		GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*SpaceAnalysis, error)
+		// 获取空间权限
+		GetSpacePermissions(ctx context.Context, in *GetSpacePermissionsRequest, opts ...grpc.CallOption) (*GetSpacePermissionsResponse, error)
+		GetSpaceVO(ctx context.Context, in *GetSpaceVORequest, opts ...grpc.CallOption) (*SpaceVO, error)
 	}
 
 	defaultSpaceService struct {
@@ -101,4 +109,15 @@ func (m *defaultSpaceService) ListSpaceMembers(ctx context.Context, in *ListSpac
 func (m *defaultSpaceService) GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*SpaceAnalysis, error) {
 	client := space.NewSpaceServiceClient(m.cli.Conn())
 	return client.GetSpaceAnalysis(ctx, in, opts...)
+}
+
+// 获取空间权限
+func (m *defaultSpaceService) GetSpacePermissions(ctx context.Context, in *GetSpacePermissionsRequest, opts ...grpc.CallOption) (*GetSpacePermissionsResponse, error) {
+	client := space.NewSpaceServiceClient(m.cli.Conn())
+	return client.GetSpacePermissions(ctx, in, opts...)
+}
+
+func (m *defaultSpaceService) GetSpaceVO(ctx context.Context, in *GetSpaceVORequest, opts ...grpc.CallOption) (*SpaceVO, error) {
+	client := space.NewSpaceServiceClient(m.cli.Conn())
+	return client.GetSpaceVO(ctx, in, opts...)
 }

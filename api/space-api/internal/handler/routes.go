@@ -45,6 +45,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: getSpaceAnalysisHandler(serverCtx),
 			},
 			{
+				// 获取空间信息（封装类）
+				Method:  http.MethodGet,
+				Path:    "/space/:id/vo",
+				Handler: getSpaceVOHandler(serverCtx),
+			},
+			{
 				// 获取空间列表
 				Method:  http.MethodGet,
 				Path:    "/space/list",
