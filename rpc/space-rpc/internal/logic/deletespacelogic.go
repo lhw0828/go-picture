@@ -9,23 +9,23 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetSpaceLogic struct {
+type DeleteSpaceLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewGetSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpaceLogic {
-	return &GetSpaceLogic{
+func NewDeleteSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteSpaceLogic {
+	return &DeleteSpaceLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-// 获取空间信息
-func (l *GetSpaceLogic) GetSpace(in *space.GetSpaceRequest) (*space.SpaceInfo, error) {
+// 删除空间
+func (l *DeleteSpaceLogic) DeleteSpace(in *space.DeleteSpaceRequest) (*space.BaseResponse, error) {
 	// todo: add your logic here and delete this line
 
-	return &space.SpaceInfo{}, nil
+	return &space.BaseResponse{}, nil
 }

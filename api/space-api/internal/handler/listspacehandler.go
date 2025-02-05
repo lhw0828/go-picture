@@ -12,7 +12,7 @@ import (
 // 获取空间列表
 func listSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ListSpaceReq
+		var req types.ListReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return

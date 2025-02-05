@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"database/sql"
 	"picture/common/errorx"
 	"picture/rpc/space-rpc/internal/model"
@@ -17,11 +18,11 @@ func NewSpaceDao(conn sqlx.SqlConn) *SpaceDao {
 	return &SpaceDao{conn: conn}
 }
 
-func (d *SpaceDao) Insert(space *model.Space) (sql.Result, error) {
+func (d *SpaceDao) Insert(ctx context.Context, space *model.Space) (sql.Result, error) {
 	query := `insert into space(spaceName, spaceLevel, spaceType, maxSize, maxCount, totalSize, totalCount,
 		userId, createTime, editTime, updateTime) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-	return d.conn.Exec(query,
+	return d.conn.ExecCtx(ctx, query,
 		space.SpaceName,
 		space.SpaceLevel,
 		space.SpaceType,
@@ -107,4 +108,18 @@ func (d *SpaceDao) GetUsage(spaceId int64) (int64, int64, error) {
 
 	logx.Infof("查询结果: maxSize=%d, totalSize=%d", space.MaxSize, space.TotalSize)
 	return space.MaxSize, space.TotalSize, nil
+}
+
+// ExistsByUserIdAndType 检查用户是否已有同类型空间
+func (d *SpaceDao) ExistsByUserIdAndType(ctx context.Context, userId int64, spaceType int32) (bool, error) {
+	query := `select count(*) from space where userId = ? and spaceType = ? and isDelete = 0`
+	
+	var count int
+	err := d.conn.QueryRowCtx(ctx, &count, query, userId, spaceType)
+	if err != nil {
+		logx.Errorf("查询用户空间失败: userId=%d, spaceType=%d, err=%v", userId, spaceType, err)
+		return false, err
+	}
+
+	return count > 0, nil
 }

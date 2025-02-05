@@ -9,22 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type AddSpaceMemberLogic struct {
+type GetSpaceAnalysisLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 添加空间成员
-func NewAddSpaceMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddSpaceMemberLogic {
-	return &AddSpaceMemberLogic{
+// 获取空间分析数据
+func NewGetSpaceAnalysisLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetSpaceAnalysisLogic {
+	return &GetSpaceAnalysisLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *AddSpaceMemberLogic) AddSpaceMember(req *types.AddSpaceMemberReq) (resp *types.AddSpaceMemberResp, err error) {
+func (l *GetSpaceAnalysisLogic) GetSpaceAnalysis(req *types.SpaceAnalysisReq) (resp *types.SpaceAnalysis, err error) {
 	// todo: add your logic here and delete this line
 
 	return

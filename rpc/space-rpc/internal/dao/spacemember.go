@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"context"
 	"database/sql"
 	"picture/rpc/space-rpc/internal/model"
 
@@ -15,10 +16,10 @@ func NewSpaceMemberDao(conn sqlx.SqlConn) *SpaceMemberDao {
 	return &SpaceMemberDao{conn: conn}
 }
 
-func (d *SpaceMemberDao) Insert(member *model.SpaceMember) (sql.Result, error) {
+func (d *SpaceMemberDao) Insert(ctx context.Context, member *model.SpaceMember) (sql.Result, error) {
 	query := `insert into space_user(spaceId, userId, spaceRole, createTime, updateTime) 
 		values (?, ?, ?, ?, ?)`
-	return d.conn.Exec(query, member.SpaceId, member.UserId, member.SpaceRole,
+	return d.conn.ExecCtx(ctx, query, member.SpaceId, member.UserId, member.SpaceRole,
 		member.CreateTime, member.UpdateTime)
 }
 

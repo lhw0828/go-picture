@@ -15,7 +15,7 @@ type UpdateSpaceLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// 更新团队空间使用容量
+// 更新空间信息
 func NewUpdateSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UpdateSpaceLogic {
 	return &UpdateSpaceLogic{
 		Logger: logx.WithContext(ctx),
@@ -24,7 +24,7 @@ func NewUpdateSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Updat
 	}
 }
 
-func (l *UpdateSpaceLogic) UpdateSpace(req *types.UpdateSpaceReq) (resp *types.CommonResp, err error) {
+func (l *UpdateSpaceLogic) UpdateSpace(req *types.UpdateSpaceReq) (resp *types.BaseResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return

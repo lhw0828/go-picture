@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"picture/api/space-api/internal/logic"
 	"picture/api/space-api/internal/svc"
 	"picture/api/space-api/internal/types"
-	"picture/common/response"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
@@ -20,12 +20,20 @@ func createSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := logic.NewCreateSpaceLogic(r.Context(), svcCtx)
-		resp, err := l.CreateSpace(&req)
+		// 获取当前登录用户
+		userIdNumber := r.Context().Value("userId").(json.Number)
+		userId, err := userIdNumber.Int64()
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, response.Success(resp))
+			return
 		}
+
+		l := logic.NewCreateSpaceLogic(r.Context(), svcCtx)
+		resp, err := l.CreateSpace(&req, userId)
+		if err != nil {
+			httpx.ErrorCtx(r.Context(), w, err)
+			return
+		}
+		httpx.OkJsonCtx(r.Context(), w, resp)
 	}
 }

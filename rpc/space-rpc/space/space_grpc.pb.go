@@ -21,30 +21,31 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	SpaceService_CreateSpace_FullMethodName      = "/space.SpaceService/CreateSpace"
 	SpaceService_GetSpace_FullMethodName         = "/space.SpaceService/GetSpace"
-	SpaceService_AddSpaceMember_FullMethodName   = "/space.SpaceService/AddSpaceMember"
+	SpaceService_UpdateSpace_FullMethodName      = "/space.SpaceService/UpdateSpace"
+	SpaceService_DeleteSpace_FullMethodName      = "/space.SpaceService/DeleteSpace"
+	SpaceService_ListSpace_FullMethodName        = "/space.SpaceService/ListSpace"
 	SpaceService_ListSpaceMembers_FullMethodName = "/space.SpaceService/ListSpaceMembers"
-	SpaceService_UpdateSpaceUsage_FullMethodName = "/space.SpaceService/UpdateSpaceUsage"
 	SpaceService_GetSpaceAnalysis_FullMethodName = "/space.SpaceService/GetSpaceAnalysis"
 )
 
 // SpaceServiceClient is the client API for SpaceService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// 空间服务
 type SpaceServiceClient interface {
 	// 创建空间
-	CreateSpace(ctx context.Context, in *CreateSpaceRequest, opts ...grpc.CallOption) (*CreateSpaceResponse, error)
+	CreateSpace(ctx context.Context, in *CreateSpaceRequest, opts ...grpc.CallOption) (*SpaceInfo, error)
 	// 获取空间信息
-	GetSpace(ctx context.Context, in *GetSpaceRequest, opts ...grpc.CallOption) (*GetSpaceResponse, error)
-	// 添加空间成员
-	AddSpaceMember(ctx context.Context, in *AddSpaceMemberRequest, opts ...grpc.CallOption) (*AddSpaceMemberResponse, error)
+	GetSpace(ctx context.Context, in *GetSpaceRequest, opts ...grpc.CallOption) (*SpaceInfo, error)
+	// 更新空间信息
+	UpdateSpace(ctx context.Context, in *UpdateSpaceRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 删除空间
+	DeleteSpace(ctx context.Context, in *DeleteSpaceRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+	// 获取空间列表
+	ListSpace(ctx context.Context, in *ListSpaceRequest, opts ...grpc.CallOption) (*ListSpaceResponse, error)
 	// 获取空间成员列表
 	ListSpaceMembers(ctx context.Context, in *ListSpaceMembersRequest, opts ...grpc.CallOption) (*ListSpaceMembersResponse, error)
-	// 更新空间使用容量
-	UpdateSpaceUsage(ctx context.Context, in *UpdateSpaceUsageRequest, opts ...grpc.CallOption) (*UpdateSpaceUsageResponse, error)
 	// 获取空间分析数据
-	GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*GetSpaceAnalysisResponse, error)
+	GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*SpaceAnalysis, error)
 }
 
 type spaceServiceClient struct {
@@ -55,9 +56,9 @@ func NewSpaceServiceClient(cc grpc.ClientConnInterface) SpaceServiceClient {
 	return &spaceServiceClient{cc}
 }
 
-func (c *spaceServiceClient) CreateSpace(ctx context.Context, in *CreateSpaceRequest, opts ...grpc.CallOption) (*CreateSpaceResponse, error) {
+func (c *spaceServiceClient) CreateSpace(ctx context.Context, in *CreateSpaceRequest, opts ...grpc.CallOption) (*SpaceInfo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateSpaceResponse)
+	out := new(SpaceInfo)
 	err := c.cc.Invoke(ctx, SpaceService_CreateSpace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -65,9 +66,9 @@ func (c *spaceServiceClient) CreateSpace(ctx context.Context, in *CreateSpaceReq
 	return out, nil
 }
 
-func (c *spaceServiceClient) GetSpace(ctx context.Context, in *GetSpaceRequest, opts ...grpc.CallOption) (*GetSpaceResponse, error) {
+func (c *spaceServiceClient) GetSpace(ctx context.Context, in *GetSpaceRequest, opts ...grpc.CallOption) (*SpaceInfo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSpaceResponse)
+	out := new(SpaceInfo)
 	err := c.cc.Invoke(ctx, SpaceService_GetSpace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -75,10 +76,30 @@ func (c *spaceServiceClient) GetSpace(ctx context.Context, in *GetSpaceRequest, 
 	return out, nil
 }
 
-func (c *spaceServiceClient) AddSpaceMember(ctx context.Context, in *AddSpaceMemberRequest, opts ...grpc.CallOption) (*AddSpaceMemberResponse, error) {
+func (c *spaceServiceClient) UpdateSpace(ctx context.Context, in *UpdateSpaceRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddSpaceMemberResponse)
-	err := c.cc.Invoke(ctx, SpaceService_AddSpaceMember_FullMethodName, in, out, cOpts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, SpaceService_UpdateSpace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spaceServiceClient) DeleteSpace(ctx context.Context, in *DeleteSpaceRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseResponse)
+	err := c.cc.Invoke(ctx, SpaceService_DeleteSpace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *spaceServiceClient) ListSpace(ctx context.Context, in *ListSpaceRequest, opts ...grpc.CallOption) (*ListSpaceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSpaceResponse)
+	err := c.cc.Invoke(ctx, SpaceService_ListSpace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,19 +116,9 @@ func (c *spaceServiceClient) ListSpaceMembers(ctx context.Context, in *ListSpace
 	return out, nil
 }
 
-func (c *spaceServiceClient) UpdateSpaceUsage(ctx context.Context, in *UpdateSpaceUsageRequest, opts ...grpc.CallOption) (*UpdateSpaceUsageResponse, error) {
+func (c *spaceServiceClient) GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*SpaceAnalysis, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateSpaceUsageResponse)
-	err := c.cc.Invoke(ctx, SpaceService_UpdateSpaceUsage_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *spaceServiceClient) GetSpaceAnalysis(ctx context.Context, in *GetSpaceAnalysisRequest, opts ...grpc.CallOption) (*GetSpaceAnalysisResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSpaceAnalysisResponse)
+	out := new(SpaceAnalysis)
 	err := c.cc.Invoke(ctx, SpaceService_GetSpaceAnalysis_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -118,21 +129,21 @@ func (c *spaceServiceClient) GetSpaceAnalysis(ctx context.Context, in *GetSpaceA
 // SpaceServiceServer is the server API for SpaceService service.
 // All implementations must embed UnimplementedSpaceServiceServer
 // for forward compatibility.
-//
-// 空间服务
 type SpaceServiceServer interface {
 	// 创建空间
-	CreateSpace(context.Context, *CreateSpaceRequest) (*CreateSpaceResponse, error)
+	CreateSpace(context.Context, *CreateSpaceRequest) (*SpaceInfo, error)
 	// 获取空间信息
-	GetSpace(context.Context, *GetSpaceRequest) (*GetSpaceResponse, error)
-	// 添加空间成员
-	AddSpaceMember(context.Context, *AddSpaceMemberRequest) (*AddSpaceMemberResponse, error)
+	GetSpace(context.Context, *GetSpaceRequest) (*SpaceInfo, error)
+	// 更新空间信息
+	UpdateSpace(context.Context, *UpdateSpaceRequest) (*BaseResponse, error)
+	// 删除空间
+	DeleteSpace(context.Context, *DeleteSpaceRequest) (*BaseResponse, error)
+	// 获取空间列表
+	ListSpace(context.Context, *ListSpaceRequest) (*ListSpaceResponse, error)
 	// 获取空间成员列表
 	ListSpaceMembers(context.Context, *ListSpaceMembersRequest) (*ListSpaceMembersResponse, error)
-	// 更新空间使用容量
-	UpdateSpaceUsage(context.Context, *UpdateSpaceUsageRequest) (*UpdateSpaceUsageResponse, error)
 	// 获取空间分析数据
-	GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*GetSpaceAnalysisResponse, error)
+	GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*SpaceAnalysis, error)
 	mustEmbedUnimplementedSpaceServiceServer()
 }
 
@@ -143,22 +154,25 @@ type SpaceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSpaceServiceServer struct{}
 
-func (UnimplementedSpaceServiceServer) CreateSpace(context.Context, *CreateSpaceRequest) (*CreateSpaceResponse, error) {
+func (UnimplementedSpaceServiceServer) CreateSpace(context.Context, *CreateSpaceRequest) (*SpaceInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSpace not implemented")
 }
-func (UnimplementedSpaceServiceServer) GetSpace(context.Context, *GetSpaceRequest) (*GetSpaceResponse, error) {
+func (UnimplementedSpaceServiceServer) GetSpace(context.Context, *GetSpaceRequest) (*SpaceInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSpace not implemented")
 }
-func (UnimplementedSpaceServiceServer) AddSpaceMember(context.Context, *AddSpaceMemberRequest) (*AddSpaceMemberResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddSpaceMember not implemented")
+func (UnimplementedSpaceServiceServer) UpdateSpace(context.Context, *UpdateSpaceRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSpace not implemented")
+}
+func (UnimplementedSpaceServiceServer) DeleteSpace(context.Context, *DeleteSpaceRequest) (*BaseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSpace not implemented")
+}
+func (UnimplementedSpaceServiceServer) ListSpace(context.Context, *ListSpaceRequest) (*ListSpaceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSpace not implemented")
 }
 func (UnimplementedSpaceServiceServer) ListSpaceMembers(context.Context, *ListSpaceMembersRequest) (*ListSpaceMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSpaceMembers not implemented")
 }
-func (UnimplementedSpaceServiceServer) UpdateSpaceUsage(context.Context, *UpdateSpaceUsageRequest) (*UpdateSpaceUsageResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateSpaceUsage not implemented")
-}
-func (UnimplementedSpaceServiceServer) GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*GetSpaceAnalysisResponse, error) {
+func (UnimplementedSpaceServiceServer) GetSpaceAnalysis(context.Context, *GetSpaceAnalysisRequest) (*SpaceAnalysis, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSpaceAnalysis not implemented")
 }
 func (UnimplementedSpaceServiceServer) mustEmbedUnimplementedSpaceServiceServer() {}
@@ -218,20 +232,56 @@ func _SpaceService_GetSpace_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SpaceService_AddSpaceMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddSpaceMemberRequest)
+func _SpaceService_UpdateSpace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSpaceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SpaceServiceServer).AddSpaceMember(ctx, in)
+		return srv.(SpaceServiceServer).UpdateSpace(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SpaceService_AddSpaceMember_FullMethodName,
+		FullMethod: SpaceService_UpdateSpace_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SpaceServiceServer).AddSpaceMember(ctx, req.(*AddSpaceMemberRequest))
+		return srv.(SpaceServiceServer).UpdateSpace(ctx, req.(*UpdateSpaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpaceService_DeleteSpace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSpaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpaceServiceServer).DeleteSpace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpaceService_DeleteSpace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpaceServiceServer).DeleteSpace(ctx, req.(*DeleteSpaceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SpaceService_ListSpace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSpaceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SpaceServiceServer).ListSpace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SpaceService_ListSpace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SpaceServiceServer).ListSpace(ctx, req.(*ListSpaceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -250,24 +300,6 @@ func _SpaceService_ListSpaceMembers_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SpaceServiceServer).ListSpaceMembers(ctx, req.(*ListSpaceMembersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SpaceService_UpdateSpaceUsage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateSpaceUsageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SpaceServiceServer).UpdateSpaceUsage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SpaceService_UpdateSpaceUsage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SpaceServiceServer).UpdateSpaceUsage(ctx, req.(*UpdateSpaceUsageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -306,16 +338,20 @@ var SpaceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SpaceService_GetSpace_Handler,
 		},
 		{
-			MethodName: "AddSpaceMember",
-			Handler:    _SpaceService_AddSpaceMember_Handler,
+			MethodName: "UpdateSpace",
+			Handler:    _SpaceService_UpdateSpace_Handler,
+		},
+		{
+			MethodName: "DeleteSpace",
+			Handler:    _SpaceService_DeleteSpace_Handler,
+		},
+		{
+			MethodName: "ListSpace",
+			Handler:    _SpaceService_ListSpace_Handler,
 		},
 		{
 			MethodName: "ListSpaceMembers",
 			Handler:    _SpaceService_ListSpaceMembers_Handler,
-		},
-		{
-			MethodName: "UpdateSpaceUsage",
-			Handler:    _SpaceService_UpdateSpaceUsage_Handler,
 		},
 		{
 			MethodName: "GetSpaceAnalysis",

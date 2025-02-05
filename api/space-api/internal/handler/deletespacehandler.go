@@ -3,14 +3,12 @@ package handler
 import (
 	"net/http"
 
+	"github.com/zeromicro/go-zero/rest/httpx"
 	"picture/api/space-api/internal/logic"
 	"picture/api/space-api/internal/svc"
-	"picture/common/response"
-
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 删除团队空间
+// 删除空间
 func deleteSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := logic.NewDeleteSpaceLogic(r.Context(), svcCtx)
@@ -18,7 +16,7 @@ func deleteSpaceHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, response.Success(resp))
+			httpx.OkJsonCtx(r.Context(), w, resp)
 		}
 	}
 }

@@ -15,7 +15,7 @@ type DeleteSpaceLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// 删除团队空间
+// 删除空间
 func NewDeleteSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteSpaceLogic {
 	return &DeleteSpaceLogic{
 		Logger: logx.WithContext(ctx),
@@ -24,7 +24,7 @@ func NewDeleteSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 	}
 }
 
-func (l *DeleteSpaceLogic) DeleteSpace() (resp *types.CommonResp, err error) {
+func (l *DeleteSpaceLogic) DeleteSpace() (resp *types.BaseResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return
