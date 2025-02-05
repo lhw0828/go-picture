@@ -5,6 +5,7 @@ import (
 
 	"picture/api/user-api/internal/svc"
 	"picture/api/user-api/internal/types"
+	"picture/rpc/user-rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +26,42 @@ func NewListUserByPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Li
 }
 
 func (l *ListUserByPageLogic) ListUserByPage(req *types.UserQueryReq) (resp *types.UserQueryResp, err error) {
-	// todo: add your logic here and delete this line
+	// 参数校验
+	if req.Current <= 0 {
+		req.Current = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
 
-	return
+	// 调用 RPC 服务
+	res, err := l.svcCtx.UserRpc.ListUserByPage(l.ctx, &user.UserQueryRequest{
+		Current:  req.Current,
+		PageSize: req.PageSize,
+		UserRole: req.UserRole,
+	})
+	if err != nil {
+		l.Logger.Errorf("ListUserByPage failed: %v", err)
+		return nil, err
+	}
+
+	// 转换响应数据
+	var records []types.UserVO
+	for _, u := range res.Records {
+		records = append(records, types.UserVO{
+			Id:          u.Id,
+			UserAccount: u.UserAccount,
+			UserName:    u.UserName,
+			UserAvatar:  u.UserAvatar,
+			UserProfile: u.UserProfile,
+			UserRole:    u.UserRole,
+			CreateTime:  u.CreateTime,
+		})
+	}
+
+	resp = &types.UserQueryResp{
+		Total:   res.Total,
+		Records: records,
+	}
+	return resp, nil
 }

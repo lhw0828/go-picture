@@ -2,9 +2,12 @@ package admin
 
 import (
 	"context"
+	"strconv"
 
 	"picture/api/user-api/internal/svc"
 	"picture/api/user-api/internal/types"
+	"picture/common/errorx"
+	"picture/rpc/user-rpc/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,8 +27,25 @@ func NewDeleteUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 	}
 }
 
-func (l *DeleteUserLogic) DeleteUser() (resp *types.BaseResp, err error) {
-	// todo: add your logic here and delete this line
+func (l *DeleteUserLogic) DeleteUser(id string) (resp *types.BaseResp, err error) {
+	// 参数校验
+	userId, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		return nil, errorx.NewCodeError(errorx.ParamError, "无效的用户ID")
+	}
 
-	return
+	// 调用 RPC 服务
+	_, err = l.svcCtx.UserRpc.DeleteUser(l.ctx, &user.DeleteUserRequest{
+		Id: userId,
+	})
+	if err != nil {
+		l.Logger.Errorf("DeleteUser failed: %v", err)
+		return nil, err
+	}
+
+	resp = &types.BaseResp{
+		Code:    0,
+		Message: "删除成功",
+	}
+	return resp, nil
 }

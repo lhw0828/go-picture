@@ -33,13 +33,13 @@ func (l *ListUserLogic) ListUserByPage(in *user.UserQueryRequest) (*user.UserQue
 	offset := (in.Current - 1) * in.PageSize
 
 	// 查询总数
-	total, err := l.svcCtx.UserDao.Count(l.ctx)
+	total, err := l.svcCtx.UserDao.Count(l.ctx, in.UserRole)
 	if err != nil {
 		return nil, err
 	}
 
 	// 分页查询
-	users, err := l.svcCtx.UserDao.FindByPage(l.ctx, offset, in.PageSize)
+	users, err := l.svcCtx.UserDao.ListByPage(l.ctx, offset, in.PageSize, in.UserRole)
 	if err != nil {
 		return nil, err
 	}

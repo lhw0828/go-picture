@@ -27,11 +27,37 @@ func (d *UserDao) FindByPage(ctx context.Context, offset, limit int64) ([]*model
 }
 
 // 添加统计方法
-func (d *UserDao) Count(ctx context.Context) (int64, error) {
+// 修改统计方法，添加 userRole 参数
+func (d *UserDao) Count(ctx context.Context, userRole string) (int64, error) {
 	var count int64
 	query := `select count(*) from user where isDelete = 0`
-	err := d.conn.QueryRowCtx(ctx, &count, query)
+	args := []interface{}{}
+
+	if userRole != "" {
+		query += ` and userRole = ?`
+		args = append(args, userRole)
+	}
+
+	err := d.conn.QueryRowCtx(ctx, &count, query, args...)
 	return count, err
+}
+
+// 修改分页查询方法，添加 userRole 参数
+func (d *UserDao) ListByPage(ctx context.Context, offset, limit int64, userRole string) ([]*model.User, error) {
+	var users []*model.User
+	query := `select * from user where isDelete = 0`
+	args := []interface{}{}
+
+	if userRole != "" {
+		query += ` and userRole = ?`
+		args = append(args, userRole)
+	}
+
+	query += ` order by id desc limit ?, ?`
+	args = append(args, offset, limit)
+
+	err := d.conn.QueryRowsCtx(ctx, &users, query, args...)
+	return users, err
 }
 
 func (d *UserDao) FindById(ctx context.Context, id int64) (*model.User, error) {
