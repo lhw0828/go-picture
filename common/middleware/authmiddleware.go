@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -63,18 +64,37 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if !token.Valid {
-			httpx.OkJson(w, response.Error(errorx.UnauthorizedErr, "无效的token"))
+			httpx.WriteJson(w, http.StatusOK, response.Error(errorx.UnauthorizedErr, "无效的token"))
 			return
 		}
 
+		logx.Infof("Token claims: %+v", claims)
+
+		// 将 claims 存入上下文
+		ctx := context.WithValue(r.Context(), ClaimsKey, claims)
+
+		// 获取并存储用户ID
 		userId, ok := claims["userId"].(float64)
 		if !ok {
-			httpx.OkJson(w, response.Error(errorx.UnauthorizedErr, "token信息不完整"))
+			logx.Errorf("Failed to get userId from claims")
+			httpx.WriteJson(w, http.StatusOK, response.Error(errorx.UnauthorizedErr, "token信息不完整"))
+			return
+		}
+		logx.Infof("UserId from claims: %v", userId)
+
+		logx.Infof("Raw token claims: %+v", claims)
+
+		// 获取并存储用户角色
+		userRole, ok := claims["userRole"].(string)
+		if !ok {
+			logx.Errorf("Failed to get userRole from claims, claims: %+v", claims)
+			httpx.WriteJson(w, http.StatusOK, response.Error(errorx.UnauthorizedErr, "token信息不完整"))
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "claims", claims)
-		ctx = context.WithValue(ctx, "userId", int64(userId))
+		ctx = context.WithValue(r.Context(), UserRoleKey, userRole)
+		logx.Infof("Set userRole in context: %s", userRole)
+
 		next(w, r.WithContext(ctx))
 	}
 }

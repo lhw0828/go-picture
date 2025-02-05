@@ -32,7 +32,6 @@ func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.LoginResp, err error
 	// 从上下文中获取 userId
 	userId := l.ctx.Value("userId")
 	if userId == nil {
-		l.Logger.Error("Failed to get userId from context")
 		return nil, fmt.Errorf("获取用户ID失败")
 	}
 
@@ -42,21 +41,25 @@ func (l *GetCurrentUserLogic) GetCurrentUser() (resp *types.LoginResp, err error
 	case json.Number:
 		id, err = v.Int64()
 		if err != nil {
-			l.Logger.Errorf("Convert userId error: %v", err)
+			l.Logger.Errorf("用户ID转换错误: %v", err)
 			return nil, fmt.Errorf("用户ID格式错误")
 		}
+	case float64:
+		id = int64(v)
+	case int64:
+		id = v
 	default:
-		l.Logger.Errorf("Invalid userId type: %T", userId)
+		l.Logger.Errorf("无效的用户ID类型: %T", userId)
 		return nil, fmt.Errorf("用户ID类型错误")
 	}
 
 	l.Logger.Infof("Getting user info for userId: %d", id)
 
-	res, err := l.svcCtx.UserRpc.GetUserById(l.ctx, &user.GetUserByIdRequest{
+	res, err := l.svcCtx.UserRpc.GetCurrentUser(l.ctx, &user.GetUserByIdRequest{
 		Id: id,
 	})
 	if err != nil {
-		l.Logger.Errorf("GetUserById failed: %v", err)
+		l.Logger.Errorf("GetCurrentUser failed: %v", err)
 		return nil, err
 	}
 

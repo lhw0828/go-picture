@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"picture/common/errorx"
@@ -40,7 +41,7 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 	}
 
 	// 判断账号是否已存在
-	existUser, err := l.svcCtx.UserDao.FindByUserAccount(in.UserAccount)
+	existUser, err := l.svcCtx.UserDao.FindByUserAccount(l.ctx, in.UserAccount)
 	if err != nil {
 		l.Logger.Errorf("查询用户错误，Find user error: %v", err)
 		return nil, err
@@ -49,17 +50,25 @@ func (l *RegisterLogic) Register(in *user.RegisterRequest) (*user.RegisterRespon
 		return nil, errorx.NewCodeError(errorx.UserExist, "账号已存在")
 	}
 
+	// 加密密码
+	encryptPassword, err := utils.EncryptPassword(in.UserPassword)
+	if err != nil {
+		l.Logger.Errorf("密码加密失败: %v", err)
+		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")
+	}
+
 	// 创建用户
 	newUser := &model.User{
 		UserAccount:  in.UserAccount,
-		UserPassword: utils.EncryptPassword(in.UserPassword),
-		UserName:     "用户" + in.UserAccount,
+		UserPassword: encryptPassword,
+		UserName:     sql.NullString{String: "用户" + in.UserAccount, Valid: true},
 		UserRole:     "user",
 		CreateTime:   time.Now(),
 		UpdateTime:   time.Now(),
+		IsDelete:     0,
 	}
 
-	result, err := l.svcCtx.UserDao.Insert(newUser)
+	result, err := l.svcCtx.UserDao.Insert(l.ctx, newUser) // Add l.ctx as first parameter
 	if err != nil {
 		l.Logger.Errorf("插入到数据库错误，Insert user error: %v", err)
 		return nil, errorx.NewCodeError(errorx.RegisterFail, "注册失败")

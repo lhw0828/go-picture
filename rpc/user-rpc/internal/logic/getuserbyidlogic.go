@@ -24,12 +24,12 @@ func NewGetUserByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 	}
 }
 
-func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUserByIdResponse, error) {
+func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.UserInfo, error) {
 	// Add logging
 	l.Logger.Infof("rpc调用，GetUserById request: %v", in)
 
 	// Get user from database
-	userModel, err := l.svcCtx.UserDao.FindById(in.Id)
+	userModel, err := l.svcCtx.UserDao.FindById(l.ctx, in.Id)
 	if err != nil {
 		l.Logger.Errorf("Find user error: %v", err)
 		return nil, err
@@ -38,10 +38,10 @@ func (l *GetUserByIdLogic) GetUserById(in *user.GetUserByIdRequest) (*user.GetUs
 		return nil, errorx.NewCodeError(errorx.UserNotExist, "用户不存在")
 	}
 
-	return &user.GetUserByIdResponse{
+	return &user.UserInfo{
 		Id:          userModel.Id,
 		UserAccount: userModel.UserAccount,
-		UserName:    userModel.UserName,
+		UserName:    userModel.UserName.String,
 		UserAvatar:  userModel.UserAvatar.String,
 		UserProfile: userModel.UserProfile.String,
 		UserRole:    userModel.UserRole,

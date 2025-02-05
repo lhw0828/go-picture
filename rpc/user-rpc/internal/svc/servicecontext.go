@@ -14,7 +14,6 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	conn := sqlx.NewMysql(c.Mysql.DataSource)
-
 	return &ServiceContext{
 		Config:  c,
 		UserDao: dao.NewUserDao(conn),

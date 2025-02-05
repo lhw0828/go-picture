@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	admin "picture/api/user-api/internal/handler/admin"
 	"picture/api/user-api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -31,14 +32,35 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取当前用户信息
-				Method:  http.MethodGet,
-				Path:    "/user/current",
-				Handler: getCurrentUserHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Admin},
+			[]rest.Route{
+				{
+					// 创建用户
+					Method:  http.MethodPost,
+					Path:    "/user/add",
+					Handler: admin.AddUserHandler(serverCtx),
+				},
+				{
+					// 删除用户
+					Method:  http.MethodPost,
+					Path:    "/user/delete/:id",
+					Handler: admin.DeleteUserHandler(serverCtx),
+				},
+				{
+					// 分页获取用户列表
+					Method:  http.MethodPost,
+					Path:    "/user/list/page",
+					Handler: admin.ListUserByPageHandler(serverCtx),
+				},
+				{
+					// 更新用户
+					Method:  http.MethodPost,
+					Path:    "/user/update",
+					Handler: admin.UpdateUserHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api/v1"),
 	)

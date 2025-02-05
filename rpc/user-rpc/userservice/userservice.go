@@ -14,17 +14,31 @@ import (
 )
 
 type (
-	GetUserByIdRequest  = user.GetUserByIdRequest
-	GetUserByIdResponse = user.GetUserByIdResponse
-	LoginRequest        = user.LoginRequest
-	LoginResponse       = user.LoginResponse
-	RegisterRequest     = user.RegisterRequest
-	RegisterResponse    = user.RegisterResponse
+	BaseResponse       = user.BaseResponse
+	DeleteUserRequest  = user.DeleteUserRequest
+	GetUserByIdRequest = user.GetUserByIdRequest
+	LoginRequest       = user.LoginRequest
+	LoginResponse      = user.LoginResponse
+	LogoutRequest      = user.LogoutRequest
+	RegisterRequest    = user.RegisterRequest
+	RegisterResponse   = user.RegisterResponse
+	UserAddRequest     = user.UserAddRequest
+	UserInfo           = user.UserInfo
+	UserQueryRequest   = user.UserQueryRequest
+	UserQueryResponse  = user.UserQueryResponse
+	UserUpdateRequest  = user.UserUpdateRequest
 
 	UserService interface {
+		// 基础功能
 		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-		GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error)
+		GetCurrentUser(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*UserInfo, error)
+		Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+		// 用户管理功能
+		AddUser(ctx context.Context, in *UserAddRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+		UpdateUser(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+		DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*BaseResponse, error)
+		ListUserByPage(ctx context.Context, in *UserQueryRequest, opts ...grpc.CallOption) (*UserQueryResponse, error)
 	}
 
 	defaultUserService struct {
@@ -38,6 +52,7 @@ func NewUserService(cli zrpc.Client) UserService {
 	}
 }
 
+// 基础功能
 func (m *defaultUserService) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	client := user.NewUserServiceClient(m.cli.Conn())
 	return client.Register(ctx, in, opts...)
@@ -48,7 +63,33 @@ func (m *defaultUserService) Login(ctx context.Context, in *LoginRequest, opts .
 	return client.Login(ctx, in, opts...)
 }
 
-func (m *defaultUserService) GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error) {
+func (m *defaultUserService) GetCurrentUser(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*UserInfo, error) {
 	client := user.NewUserServiceClient(m.cli.Conn())
-	return client.GetUserById(ctx, in, opts...)
+	return client.GetCurrentUser(ctx, in, opts...)
+}
+
+func (m *defaultUserService) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.Logout(ctx, in, opts...)
+}
+
+// 用户管理功能
+func (m *defaultUserService) AddUser(ctx context.Context, in *UserAddRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.AddUser(ctx, in, opts...)
+}
+
+func (m *defaultUserService) UpdateUser(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.UpdateUser(ctx, in, opts...)
+}
+
+func (m *defaultUserService) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*BaseResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.DeleteUser(ctx, in, opts...)
+}
+
+func (m *defaultUserService) ListUserByPage(ctx context.Context, in *UserQueryRequest, opts ...grpc.CallOption) (*UserQueryResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.ListUserByPage(ctx, in, opts...)
 }

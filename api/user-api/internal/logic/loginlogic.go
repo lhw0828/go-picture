@@ -32,17 +32,17 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		UserPassword: req.UserPassword,
 	})
 	if err != nil {
-		logx.Errorf("登陆失败，Login failed: %v", err)
+		l.Logger.Errorf("登录失败，Login failed: %v", err)
 		return nil, err
 	}
 
 	return &types.LoginResp{
-		Id:          res.GetId(), // 使用 Get 方法
-		UserAccount: res.GetUserAccount(),
-		UserName:    res.GetUserName(),
-		UserAvatar:  res.GetUserAvatar(),
-		UserProfile: res.GetUserProfile(),
-		UserRole:    res.GetUserRole(),
-		AccessToken: res.GetAccessToken(),
+		Id:          res.User.Id,
+		UserAccount: res.User.UserAccount,
+		UserName:    res.User.UserName,
+		UserAvatar:  res.User.UserAvatar,
+		UserProfile: res.User.UserProfile,
+		UserRole:    res.User.UserRole,
+		AccessToken: res.AccessToken,
 	}, nil
 }

@@ -3,6 +3,24 @@
 
 package types
 
+type BaseResp struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type GetUserByIdReq struct {
+	Id int64 `json:"id"`
+}
+
+type GetUserByIdResp struct {
+	Id          int64  `json:"id"`
+	UserAccount string `json:"userAccount"`
+	UserName    string `json:"userName"`
+	UserAvatar  string `json:"userAvatar,optional"`
+	UserProfile string `json:"userProfile,optional"`
+	UserRole    string `json:"userRole"`
+}
+
 type LoginReq struct {
 	UserAccount  string `json:"userAccount"`
 	UserPassword string `json:"userPassword"`
@@ -26,4 +44,40 @@ type RegisterReq struct {
 
 type RegisterResp struct {
 	Id int64 `json:"id"`
+}
+
+type UserAddReq struct {
+	UserAccount string `json:"userAccount"`
+	UserName    string `json:"userName,optional"`
+	UserAvatar  string `json:"userAvatar,optional"`
+	UserProfile string `json:"userProfile,optional"`
+	UserRole    string `json:"userRole"`
+}
+
+type UserQueryReq struct {
+	Current  int64  `json:"current,default=1"`
+	PageSize int64  `json:"pageSize,default=10"`
+	UserRole string `json:"userRole,optional"`
+}
+
+type UserQueryResp struct {
+	Total   int64    `json:"total"`
+	Records []UserVO `json:"records"`
+}
+
+type UserUpdateReq struct {
+	Id          int64  `json:"id"`
+	UserName    string `json:"userName,optional"`
+	UserAvatar  string `json:"userAvatar,optional"`
+	UserProfile string `json:"userProfile,optional"`
+}
+
+type UserVO struct {
+	Id          int64  `json:"id"`
+	UserAccount string `json:"userAccount"`
+	UserName    string `json:"userName"`
+	UserAvatar  string `json:"userAvatar,optional"`
+	UserProfile string `json:"userProfile,optional"`
+	UserRole    string `json:"userRole"`
+	CreateTime  string `json:"createTime"`
 }

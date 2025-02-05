@@ -7,7 +7,7 @@ import (
 	"picture/rpc/user-rpc/internal/config"
 	"picture/rpc/user-rpc/internal/server"
 	"picture/rpc/user-rpc/internal/svc"
-	"picture/rpc/user-rpc/user" // 更新这个导入路径
+	"picture/rpc/user-rpc/user"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -27,10 +27,6 @@ func main() {
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		user.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
-
-		// 注册服务
-		server.NewUserServiceServer(ctx)
-
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}

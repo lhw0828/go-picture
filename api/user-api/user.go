@@ -23,18 +23,19 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	server := rest.MustNewServer(c.RestConf)
+	ctx := svc.NewServiceContext(c)
+	server := rest.MustNewServer(c.RestConf, rest.WithCors())
 	defer server.Stop()
 
-	ctx := svc.NewServiceContext(c)
+	// 注册全局中间件
+	server.Use(middleware.Recovery())
+	server.Use(middleware.Cors())
+	server.Use(middleware.RequestLog)
 
-	// 使用封装的错误处理器
+	// 配置错误处理器
 	httpx.SetErrorHandler(errorx.ErrorHandler)
 
 	handler.RegisterHandlers(server, ctx)
-
-	// 添加错误处理中间件
-	server.Use(middleware.ErrorHandler)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
