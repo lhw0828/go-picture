@@ -7,10 +7,12 @@ import (
 	"picture/api/user-api/internal/config"
 	"picture/api/user-api/internal/handler"
 	"picture/api/user-api/internal/svc"
+	"picture/common/errorx"
 	"picture/common/middleware"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 var configFile = flag.String("f", "etc/user.yaml", "the config file")
@@ -29,6 +31,9 @@ func main() {
 	server.Use(middleware.Recovery())
 	server.Use(middleware.Cors())
 	server.Use(middleware.RequestLog)
+
+	// 配置错误处理器
+	httpx.SetErrorHandler(errorx.ErrorHandler)
 
 	handler.RegisterHandlers(server, ctx)
 

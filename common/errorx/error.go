@@ -38,16 +38,23 @@ const (
 
 // 用户相关错误码 (405xx)
 const (
-	UserNotExist      = 40500 // 用户不存在
-	PasswordWrong     = 40501 // 密码错误
-	UserExist         = 40502 // 用户已存在
-	UserNotLogin      = 40503 // 用户未登录
-	UserNotActive     = 40504 // 用户未激活
-	RegisterFail      = 40505 // 注册失败
-	LoginFail         = 40506 // 登录失败
-	GenerateTokenFail = 40507 // 生成token失败
-	PasswordNotMatch  = 40508 // 密码不匹配
-	PasswordIsNull    = 40509 // 密码为空
+	UserNotExist       = 40500 // 用户不存在
+	PasswordWrong      = 40501 // 密码错误
+	UserExist          = 40502 // 用户已存在
+	UserNotLogin       = 40503 // 用户未登录
+	UserNotActive      = 40504 // 用户未激活
+	RegisterFail       = 40505 // 注册失败
+	LoginFail          = 40506 // 登录失败
+	GenerateTokenFail  = 40507 // 生成token失败
+	PasswordNotMatch   = 40508 // 密码不匹配
+	PasswordIsNull     = 40509 // 密码为空
+	PasswordTooShort   = 40510 // 密码太短
+	PasswordTooLong    = 40511 // 密码太长
+	PasswordNotSet     = 40512 // 密码未设置
+	UserAccountNotNull = 40513 // 用户账号不能为空
+	UserRoleNotNull    = 40514 // 用户角色不能为空
+	CreateUserFailed   = 40515 // 创建用户失败
+
 )
 
 // 常用参数校正错误码 (406xx)
@@ -93,16 +100,22 @@ const (
 	AddTeamMemberFailMsg = "添加团队成员失败"
 
 	// 用户相关错误信息
-	UserNotExistMsg      = "用户不存在"
-	PasswordWrongMsg     = "密码错误"
-	UserExistMsg         = "用户已存在"
-	UserNotLoginMsg      = "用户未登录"
-	UserNotActiveMsg     = "用户未激活"
-	RegisterFailMsg      = "注册失败"
-	LoginFailMsg         = "登录失败"
-	GenerateTokenFailMsg = "生成token失败"
-	PasswordNotMatchMsg  = "密码不匹配"
-	PasswordIsNullMsg    = "密码为空"
+	UserNotExistMsg       = "用户不存在"
+	PasswordWrongMsg      = "密码错误"
+	UserExistMsg          = "用户已存在"
+	UserNotLoginMsg       = "用户未登录"
+	UserNotActiveMsg      = "用户未激活"
+	RegisterFailMsg       = "注册失败"
+	LoginFailMsg          = "登录失败"
+	GenerateTokenFailMsg  = "生成token失败"
+	PasswordNotMatchMsg   = "密码不匹配"
+	PasswordIsNullMsg     = "密码为空"
+	PasswordTooShortMsg   = "密码太短"
+	PasswordTooLongMsg    = "密码太长"
+	PasswordNotSetMsg     = "密码未设置"
+	UserAccountNotNullMsg = "用户账号不能为空"
+	UserRoleNotNullMsg    = "用户角色不能为空"
+	CreateUserFailedMsg   = "创建用户失败"
 
 	// 常用参数校正错误信息
 	LengthLess4Msg = "长度小于4"
@@ -183,6 +196,7 @@ type CodeError struct {
 	Message string `json:"message"`
 }
 
+// 修改 Error 方法的实现
 func (e *CodeError) Error() string {
 	return e.Message
 }
