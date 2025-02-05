@@ -32,6 +32,8 @@ const (
 // UserServiceClient is the client API for UserService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// 用户管理相关接口
 type UserServiceClient interface {
 	// 基础功能
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
@@ -136,6 +138,8 @@ func (c *userServiceClient) ListUserByPage(ctx context.Context, in *UserQueryReq
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
+//
+// 用户管理相关接口
 type UserServiceServer interface {
 	// 基础功能
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)

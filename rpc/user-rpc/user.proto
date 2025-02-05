@@ -50,6 +50,7 @@ message UserUpdateRequest {
     string userName = 2;
     string userAvatar = 3;
     string userProfile = 4;
+    string userRole = 5;
 }
 
 message UserQueryRequest {
@@ -91,7 +92,7 @@ service UserService {
     rpc Login(LoginRequest) returns(LoginResponse);
     rpc GetCurrentUser(GetUserByIdRequest) returns(UserInfo);
     rpc Logout(LogoutRequest) returns(BaseResponse);
-    
+
     // 用户管理功能
     rpc AddUser(UserAddRequest) returns(RegisterResponse);
     rpc UpdateUser(UserUpdateRequest) returns(BaseResponse);

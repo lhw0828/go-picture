@@ -105,11 +105,12 @@ func (d *UserDao) Insert(ctx context.Context, user *model.User) (sql.Result, err
 }
 
 func (d *UserDao) Update(ctx context.Context, user *model.User) error {
-	query := `update user set userName=?, userAvatar=?, userProfile=?, updateTime=? where id=?`
+	query := `update user set userName=?, userAvatar=?, userProfile=?, userRole=?, updateTime=? where id=?`
 	_, err := d.conn.ExecCtx(ctx, query,
 		user.UserName,
 		user.UserAvatar,
 		user.UserProfile,
+		user.UserRole,
 		user.UpdateTime,
 		user.Id)
 	return err

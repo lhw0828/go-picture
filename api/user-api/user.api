@@ -87,6 +87,7 @@ type (
 		UserName    string `json:"userName,optional"`
 		UserAvatar  string `json:"userAvatar,optional"`
 		UserProfile string `json:"userProfile,optional"`
+		UserRole    string `json:"userRole,optional"`
 	}
 	UserQueryReq {
 		Current  int64  `json:"current,default=1"`
