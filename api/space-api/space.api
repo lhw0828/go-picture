@@ -1,0 +1,157 @@
+syntax = "v1"
+
+info (
+	title:   "空间服务"
+	desc:    "空间管理相关接口"
+	author:  "lhw"
+	version: "v1"
+)
+
+type (
+	CreateSpaceReq {
+		SpaceName  string `json:"spaceName"`
+		SpaceType  int32  `json:"spaceType"` // 0-私有 1-团队
+		SpaceLevel int32  `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
+	}
+	CreateSpaceResp {
+		Id int64 `json:"id"`
+	}
+	// 获取space空间
+	GetSpaceReq {
+		Id int64 `path:"id"`
+	}
+	GetSpaceResp {
+		Id         int64  `json:"id"`
+		SpaceName  string `json:"spaceName"`
+		SpaceType  int32  `json:"spaceType"` // 0-私有 1-团队
+		SpaceLevel int32  `json:"spaceLevel"` // 0-普通版 1-专业版 2-旗舰版
+		MaxSize    int64  `json:"maxSize"`
+		MaxCount   int64  `json:"maxCount"`
+		TotalSize  int64  `json:"totalSize"`
+		TotalCount int64  `json:"totalCount"`
+		UserId     int64  `json:"userId"`
+		CreateTime string `json:"createTime"`
+		UpdateTime string `json:"updateTime"`
+	}
+	AddSpaceMemberReq {
+		SpaceId   int64  `json:"spaceId"`
+		UserId    int64  `json:"userId"`
+		SpaceRole string `json:"spaceRole"` // viewer/editor/admin
+	}
+	ListSpaceMemberReq {
+		SpaceId  int64  `path:"spaceId"`
+		Current  int64  `form:"current,default=1"`
+		PageSize int64  `form:"pageSize,default=10"`
+		Role     string `form:"role,optional"`
+	}
+	RemoveSpaceMemberReq {
+		SpaceId int64 `json:"spaceId"`
+		UserId  int64 `json:"userId"`
+	}
+	AddSpaceMemberResp {
+		Success bool `json:"success"`
+	}
+	SpaceMemberInfo {
+		UserId     int64  `json:"userId"`
+		UserName   string `json:"userName"`
+		UserAvatar string `json:"userAvatar"`
+		SpaceRole  string `json:"spaceRole"` // 改为 spaceRole
+		CreateTime string `json:"createTime"`
+	}
+	ListSpaceMemberResp {
+		List     []SpaceMemberInfo `json:"list"`
+		Total    int64             `json:"total"`
+		Current  int64             `json:"current"`
+		PageSize int64             `json:"pageSize"`
+	}
+	ListSpaceMembersResp {
+		Members []SpaceMemberInfo `json:"members"`
+	}
+	UpdateSpaceUsageReq {
+		Size      int64  `json:"size"`
+		Operation string `json:"operation"` // add/subtract
+	}
+	UpdateSpaceUsageResp {
+		Success       bool  `json:"success"`
+		RemainingSize int64 `json:"remainingSize"`
+	}
+	// 更新空间使用容量
+	UpdateSpaceReq {
+		Id         int64  `path:"id"`
+		SpaceName  string `json:"spaceName,optional"`
+		SpaceType  int32  `json:"spaceType,optional"` // 0-私有 1-团队
+		SpaceLevel int32  `json:"spaceLevel,optional"` // 0-普通版 1-专业版 2-旗舰版
+		MaxSize    int64  `json:"maxSize,optional"`
+		MaxCount   int64  `json:"maxCount,optional"`
+	}
+	// 获取空间列表
+	ListSpaceReq {
+		Current   int64  `form:"current,default=1"`
+		PageSize  int64  `form:"pageSize,default=10"`
+		SpaceName string `form:"spaceName,optional"` // 支持模糊搜索
+		SpaceType *int   `form:"spaceType,optional"` // 空间类型
+	}
+	ListSpaceResp {
+		List     []SpaceInfo `json:"list"`
+		Total    int64       `json:"total"`
+		Current  int64       `json:"current"`
+		PageSize int64       `json:"pageSize"`
+	}
+	SpaceInfo {
+		Id         int64  `json:"id"`
+		SpaceName  string `json:"spaceName"`
+		SpaceType  int32  `json:"spaceType"`
+		SpaceLevel int32  `json:"spaceLevel"`
+		MaxSize    int64  `json:"maxSize"`
+		MaxCount   int64  `json:"maxCount"`
+		TotalSize  int64  `json:"totalSize"`
+		TotalCount int64  `json:"totalCount"`
+		UserId     int64  `json:"userId"`
+		CreateTime string `json:"createTime"`
+		UpdateTime string `json:"updateTime"`
+	}
+	// 通用响应结果
+	CommonResp {
+		Code    int32  `json:"code"`
+		Message string `json:"message"`
+	}
+)
+
+@server (
+	jwt:    Auth
+	prefix: api/v1
+)
+service space {
+	@doc "创建空间"
+	@handler createSpace
+	post /space (CreateSpaceReq) returns (CreateSpaceResp)
+
+	@doc "获取空间信息"
+	@handler getSpace
+	get /space/:id (GetSpaceReq) returns (GetSpaceResp)
+
+	@doc "添加空间成员"
+	@handler addSpaceMember
+	post /space/:id/member (AddSpaceMemberReq) returns (AddSpaceMemberResp)
+
+	@doc "获取空间成员列表"
+	@handler listSpaceMembers
+	get /space/:id/members returns (ListSpaceMembersResp)
+
+	@doc "更新空间使用容量"
+	@handler updateSpaceUsage
+	put /space/:id/usage (UpdateSpaceUsageReq) returns (UpdateSpaceUsageResp)
+
+	@doc "更新团队空间使用容量"
+	@handler updateSpace
+	put /api/v1/space/:id (UpdateSpaceReq) returns (CommonResp)
+
+	@doc "删除团队空间"
+	@handler deleteSpace
+	delete /api/v1/space/:id returns (CommonResp)
+
+	@doc "获取空间列表"
+	@handler listSpace
+	get /api/v1/space/list (ListSpaceReq) returns (ListSpaceResp)
+}
+

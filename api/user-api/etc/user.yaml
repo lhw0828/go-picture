@@ -1,0 +1,23 @@
+Name: User
+Host: 0.0.0.0
+Port: 8888
+
+Auth:
+  AccessSecret: "ning4256"
+  AccessExpire: 7200
+
+JwtAuth:
+  AccessSecret: "ning4256"
+
+Log:
+  ServiceName: user-api
+  Mode: console
+  Level: info
+  Encoding: json
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - localhost:2379
+    Key: user.rpc
+    NonBlock: true

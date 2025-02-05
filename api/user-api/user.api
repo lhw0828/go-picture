@@ -1,0 +1,129 @@
+syntax = "v1"
+
+info (
+	title:   "Picture Service"
+	desc:    "Picture Management System API"
+	author:  "lhw"
+	version: "v1"
+)
+
+// 用户登录
+type (
+	LoginReq {
+		UserAccount  string `json:"userAccount"`
+		UserPassword string `json:"userPassword"`
+	}
+	LoginResp {
+		Id          int64  `json:"id"`
+		UserAccount string `json:"userAccount"`
+		UserName    string `json:"userName"`
+		UserAvatar  string `json:"userAvatar,optional"`
+		UserProfile string `json:"userProfile,optional"`
+		UserRole    string `json:"userRole"`
+		AccessToken string `json:"accessToken"`
+	}
+)
+
+// 用户注册
+type (
+	RegisterReq {
+		UserAccount   string `json:"userAccount"`
+		UserPassword  string `json:"userPassword"`
+		CheckPassword string `json:"checkPassword"`
+	}
+	RegisterResp {
+		Id int64 `json:"id"`
+	}
+)
+
+@server (
+	prefix: api/v1
+)
+service user {
+	@doc "用户登录"
+	@handler login
+	post /user/login (LoginReq) returns (LoginResp)
+
+	@doc "用户注册"
+	@handler register
+	post /user/register (RegisterReq) returns (RegisterResp)
+}
+
+@server (
+	jwt:        Auth // JWT 中间件先执行
+	middleware: Admin // Admin 中间件后执行
+	prefix:     api/v1
+	group:      admin
+)
+service user {
+	@doc "创建用户"
+	@handler addUser
+	post /user/add (UserAddReq) returns (RegisterResp)
+
+	@doc "更新用户"
+	@handler updateUser
+	post /user/update (UserUpdateReq) returns (BaseResp)
+
+	@doc "删除用户"
+	@handler deleteUser
+	post /user/delete/:id returns (BaseResp)
+
+	@doc "分页获取用户列表"
+	@handler listUserByPage
+	post /user/list/page (UserQueryReq) returns (UserQueryResp)
+}
+
+// 用户管理请求
+type (
+	UserAddReq {
+		UserAccount string `json:"userAccount"`
+		UserName    string `json:"userName,optional"`
+		UserAvatar  string `json:"userAvatar,optional"`
+		UserProfile string `json:"userProfile,optional"`
+		UserRole    string `json:"userRole"`
+	}
+	UserUpdateReq {
+		Id          int64  `json:"id"`
+		UserName    string `json:"userName,optional"`
+		UserAvatar  string `json:"userAvatar,optional"`
+		UserProfile string `json:"userProfile,optional"`
+	}
+	UserQueryReq {
+		Current  int64  `json:"current,default=1"`
+		PageSize int64  `json:"pageSize,default=10"`
+		UserRole string `json:"userRole,optional"`
+	}
+	UserQueryResp {
+		Total   int64    `json:"total"`
+		Records []UserVO `json:"records"`
+	}
+	GetUserByIdReq {
+		Id int64 `json:"id"`
+	}
+	GetUserByIdResp {
+		Id          int64  `json:"id"`
+		UserAccount string `json:"userAccount"`
+		UserName    string `json:"userName"`
+		UserAvatar  string `json:"userAvatar,optional"`
+		UserProfile string `json:"userProfile,optional"`
+		UserRole    string `json:"userRole"`
+	}
+)
+
+// 用户信息(脱敏)
+type UserVO {
+	Id          int64  `json:"id"`
+	UserAccount string `json:"userAccount"`
+	UserName    string `json:"userName"`
+	UserAvatar  string `json:"userAvatar,optional"`
+	UserProfile string `json:"userProfile,optional"`
+	UserRole    string `json:"userRole"`
+	CreateTime  string `json:"createTime"`
+}
+
+// 基础响应
+type BaseResp {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
