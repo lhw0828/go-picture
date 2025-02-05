@@ -3,54 +3,80 @@ syntax = "proto3";
 package space;
 option go_package="./space";
 
+// 基础响应
+message BaseResponse {
+    int32 code = 1;
+    string msg = 2;
+}
+
 // 创建空间请求
 message CreateSpaceRequest {
-    string spaceName = 1;        // 空间名称
-    int32 spaceType = 2;        // 空间类型：0-私有 1-团队
-    int32 spaceLevel = 3;       // 空间级别：0-普通版 1-专业版 2-旗舰版
-    int64 userId = 4;           // 创建者ID
+    string spaceName = 1;    // 空间名称
+    int32 spaceType = 2;     // 空间类型：0-私有 1-团队
+    int32 spaceLevel = 3;    // 空间级别：0-普通版 1-专业版 2-旗舰版
+    int64 userId = 4;        // 创建者ID
 }
 
-// 创建空间响应
-message CreateSpaceResponse {
-    int64 id = 1;               // 空间ID
-}
-
-// 获取空间信息请求
-message GetSpaceRequest {
-    int64 id = 1;
-}
-
-// 获取空间信息响应
-message GetSpaceResponse {
+// 空间信息
+message SpaceInfo {
     int64 id = 1;
     string spaceName = 2;
-    int32 spaceLevel = 3;    // 0-普通版 1-专业版 2-旗舰版
-    int32 spaceType = 4;     // 0-私有 1-团队
-    int64 maxSize = 5;       // 最大总大小
-    int64 maxCount = 6;      // 最大数量
-    int64 totalSize = 7;     // 当前总大小
-    int64 totalCount = 8;    // 当前数量
+    int32 spaceLevel = 3;
+    int32 spaceType = 4;
+    int64 maxSize = 5;
+    int64 maxCount = 6;
+    int64 totalSize = 7;
+    int64 totalCount = 8;
     int64 userId = 9;
     string createTime = 10;
     string updateTime = 11;
 }
 
-// 添加空间成员请求
-message AddSpaceMemberRequest {
-    int64 spaceId = 1;
-    int64 userId = 2;
-    string spaceRole = 3;  // viewer/editor/admin
+// 获取空间请求
+message GetSpaceRequest {
+    int64 id = 1;
 }
 
-// 添加空间成员响应
-message AddSpaceMemberResponse {
-    bool success = 1;
+// 更新空间请求
+message UpdateSpaceRequest {
+    int64 id = 1;
+    string spaceName = 2;
+    int32 spaceLevel = 3;
+    int64 maxSize = 4;
+    int64 maxCount = 5;
+    int64 userId = 6;
+}
+
+// 删除空间请求
+message DeleteSpaceRequest {
+    int64 id = 1;
+    int64 userId = 2;
+}
+
+// 获取空间列表请求
+message ListSpaceRequest {
+    int64 current = 1;
+    int64 pageSize = 2;
+    string spaceName = 3;
+    optional int32 spaceType = 4;
+}
+
+// 获取空间列表响应
+message ListSpaceResponse {
+    repeated SpaceInfo list = 1;
+    int64 total = 2;
+    int64 current = 3;
+    int64 pageSize = 4;
 }
 
 // 获取空间成员列表请求
 message ListSpaceMembersRequest {
     int64 spaceId = 1;
+}
+
+// 获取空间成员列表响应
+message ListSpaceMembersResponse {
+    repeated SpaceMember members = 1;
 }
 
 // 空间成员信息
@@ -60,32 +86,8 @@ message SpaceMember {
     int64 userId = 3;
     string userName = 4;
     string userAvatar = 5;
-    string spaceRole = 6;     // 改为 spaceRole
-    string createTime = 7;    // 改为 createTime
-}
-
-// 获取空间成员列表响应
-message ListSpaceMembersResponse {
-    repeated SpaceMember members = 1;
-}
-
-// 更新空间使用容量请求
-message UpdateSpaceUsageRequest {
-    int64 spaceId = 1;
-    int64 size = 2;      // 变更的容量大小（字节）
-    string operation = 3; // add/subtract
-}
-
-// 更新空间使用容量响应
-message UpdateSpaceUsageResponse {
-    bool success = 1;
-    int64 remainingCapacity = 2;
-}
-
-// 空间使用趋势
-message SpaceUsageTrend {
-    string date = 1;
-    int64 usage = 2;
+    string spaceRole = 6;
+    string createTime = 7;
 }
 
 // 获取空间分析请求
@@ -94,29 +96,63 @@ message GetSpaceAnalysisRequest {
     string timeRange = 2;  // day/week/month
 }
 
-// 获取空间分析响应
-message GetSpaceAnalysisResponse {
-    int64 totalFiles = 1;
-    int64 totalSize = 2;
-    repeated SpaceUsageTrend usageTrends = 3;
-    map<string, int64> fileTypeDistribution = 4;
+// 空间使用趋势
+message SpaceUsageTrend {
+    string date = 1;
+    int64 usage = 2;
 }
 
-// 空间服务
+// 空间分析响应
+message SpaceAnalysis {
+    SpaceUsage usage = 1;
+    repeated CategoryCount categories = 2;
+    repeated TagCount tags = 3;
+    repeated SizeCount sizeRanges = 4;
+    repeated SpaceUsageTrend trends = 5;
+}
+
+// 空间使用情况
+message SpaceUsage {
+    int64 usedSize = 1;
+    int64 maxSize = 2;
+    double sizeUsageRatio = 3;
+    int64 usedCount = 4;
+    int64 maxCount = 5;
+    double countUsageRatio = 6;
+}
+
+// 分类统计
+message CategoryCount {
+    string category = 1;
+    int64 count = 2;
+    int64 totalSize = 3;
+}
+
+// 标签统计
+message TagCount {
+    string tag = 1;
+    int64 count = 2;
+}
+
+// 大小范围统计
+message SizeCount {
+    string sizeRange = 1;
+    int64 count = 2;
+}
+
 service SpaceService {
     // 创建空间
-    rpc CreateSpace(CreateSpaceRequest) returns(CreateSpaceResponse);
+    rpc CreateSpace(CreateSpaceRequest) returns(SpaceInfo);
     // 获取空间信息
-    rpc GetSpace(GetSpaceRequest) returns(GetSpaceResponse);
-
-    // 添加空间成员
-    rpc AddSpaceMember(AddSpaceMemberRequest) returns(AddSpaceMemberResponse);
+    rpc GetSpace(GetSpaceRequest) returns(SpaceInfo);
+    // 更新空间信息
+    rpc UpdateSpace(UpdateSpaceRequest) returns(BaseResponse);
+    // 删除空间
+    rpc DeleteSpace(DeleteSpaceRequest) returns(BaseResponse);
+    // 获取空间列表
+    rpc ListSpace(ListSpaceRequest) returns(ListSpaceResponse);
     // 获取空间成员列表
     rpc ListSpaceMembers(ListSpaceMembersRequest) returns(ListSpaceMembersResponse);
-
-    // 更新空间使用容量
-    rpc UpdateSpaceUsage(UpdateSpaceUsageRequest) returns(UpdateSpaceUsageResponse);
-
     // 获取空间分析数据
-    rpc GetSpaceAnalysis(GetSpaceAnalysisRequest) returns(GetSpaceAnalysisResponse);
+    rpc GetSpaceAnalysis(GetSpaceAnalysisRequest) returns(SpaceAnalysis);
 }

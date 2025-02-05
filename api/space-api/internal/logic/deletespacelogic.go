@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"picture/api/space-api/internal/svc"
-	"picture/api/space-api/internal/types"
+	"picture/common/types"
+	"picture/rpc/space-rpc/space"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -15,7 +16,7 @@ type DeleteSpaceLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// 删除团队空间
+// 删除空间
 func NewDeleteSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DeleteSpaceLogic {
 	return &DeleteSpaceLogic{
 		Logger: logx.WithContext(ctx),
@@ -24,8 +25,16 @@ func NewDeleteSpaceLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delet
 	}
 }
 
-func (l *DeleteSpaceLogic) DeleteSpace() (resp *types.CommonResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+func (l *DeleteSpaceLogic) DeleteSpace(req *types.DeleteRequest, userId int64) (resp *space.BaseResponse, err error) {
+	resp, err = l.svcCtx.SpaceRpc.DeleteSpace(l.ctx, &space.DeleteSpaceRequest{
+		Id:     int64(req.Id),
+		UserId: userId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &space.BaseResponse{
+		Code: resp.Code,
+		Msg:  resp.Msg,
+	}, err
 }

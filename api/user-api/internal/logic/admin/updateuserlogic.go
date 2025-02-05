@@ -38,6 +38,7 @@ func (l *UpdateUserLogic) UpdateUser(req *types.UserUpdateReq) (resp *types.Base
 		UserName:    req.UserName,
 		UserAvatar:  req.UserAvatar,
 		UserProfile: req.UserProfile,
+		UserRole:    req.UserRole,
 	})
 	if err != nil {
 		l.Logger.Errorf("UpdateUser failed: %v", err)
