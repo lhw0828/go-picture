@@ -57,73 +57,81 @@
 
 ## 项目结构
 
-├── api                     # API服务层
-│   ├── picture-api        # 图片服务API
-│   │   ├── etc           # 配置文件
-│   │   └── internal      # 内部实现
-│   │       ├── config    # 配置结构
-│   │       ├── handler   # 请求处理器
-│   │       ├── logic     # 业务逻辑
-│   │       ├── svc       # 服务上下文
-│   │       └── types     # 类型定义
-│   ├── space-api         # 空间服务API
-│   │   ├── etc          # 配置文件
-│   │   └── internal     # 内部实现
-│   │       ├── config   # 配置结构
-│   │       ├── handler  # 请求处理器
-│   │       ├── logic    # 业务逻辑
-│   │       ├── svc      # 服务上下文
-│   │       └── types    # 类型定义
-│   └── user-api          # 用户服务API
-│       ├── etc          # 配置文件
-│       └── internal     # 内部实现
-│           ├── config   # 配置结构
-│           ├── handler  # 请求处理器
-│           ├── logic    # 业务逻辑
-│           ├── svc      # 服务上下文
-│           └── types    # 类型定义
-├── common                 # 公共模块
-│   ├── constants         # 常量定义
-│   ├── errorx           # 错误处理
-│   ├── middleware       # 中间件
-│   ├── response         # 响应处理
-│   ├── sql             # SQL脚本
-│   ├── types           # 公共类型
-│   └── utils           # 工具函数
-├── configs               # 配置文件目录
-│   └── dev             # 开发环境配置
-├── pkg                  # 基础组件包
-│   ├── cache           # 缓存组件
-│   │   └── redis.go   # Redis实现
-│   ├── logger          # 日志组件
-│   │   └── logger.go  # 日志实现
-│   ├── metrics         # 监控指标
-│   └── trace          # 链路追踪
-└── rpc                  # RPC服务层
-├── picture-rpc      # 图片服务RPC
-│   ├── etc         # 配置文件
-│   └── internal    # 内部实现
-│       ├── config  # 配置结构
-│       ├── dao     # 数据访问
-│       ├── logic   # 业务逻辑
-│       ├── server  # 服务实现
-│       └── svc     # 服务上下文
-├── space-rpc        # 空间服务RPC
-│   ├── etc         # 配置文件
-│   └── internal    # 内部实现
-│       ├── config  # 配置结构
-│       ├── dao     # 数据访问
-│       ├── logic   # 业务逻辑
-│       ├── server  # 服务实现
-│       └── svc     # 服务上下文
-└── user-rpc         # 用户服务RPC
-├── etc         # 配置文件
-└── internal    # 内部实现
-├── config  # 配置结构
-├── dao     # 数据访问
-├── logic   # 业务逻辑
-├── server  # 服务实现
-└── svc     # 服务上下文
+```tree
+.
+├── api/                     # API服务层
+│   ├── picture-api/        # 图片服务API
+│   │   ├── etc/           # 配置文件
+│   │   └── internal/      # 内部实现
+│   │       ├── config/    # 配置结构
+│   │       ├── handler/   # 请求处理器
+│   │       ├── logic/     # 业务逻辑
+│   │       ├── svc/       # 服务上下文
+│   │       └── types/     # 类型定义
+│   ├── space-api/         # 空间服务API
+│   │   ├── etc/          # 配置文件
+│   │   └── internal/     # 内部实现
+│   │       ├── config/   # 配置结构
+│   │       ├── handler/  # 请求处理器
+│   │       ├── logic/    # 业务逻辑
+│   │       ├── svc/      # 服务上下文
+│   │       └── types/    # 类型定义
+│   └── user-api/         # 用户服务API
+│       ├── etc/         # 配置文件
+│       └── internal/    # 内部实现
+│           ├── config/  # 配置结构
+│           ├── handler/ # 请求处理器
+│           ├── logic/   # 业务逻辑
+│           ├── svc/     # 服务上下文
+│           └── types/   # 类型定义
+│
+├── common/               # 公共模块
+│   ├── constants/       # 常量定义
+│   ├── errorx/         # 错误处理
+│   ├── middleware/     # 中间件
+│   ├── response/       # 响应处理
+│   ├── sql/           # SQL脚本
+│   ├── types/         # 公共类型
+│   └── utils/         # 工具函数
+│
+├── configs/             # 配置文件目录
+│   └── dev/           # 开发环境配置
+│
+├── pkg/                # 基础组件包
+│   ├── cache/         # 缓存组件
+│   │   └── redis.go  # Redis实现
+│   ├── logger/        # 日志组件
+│   │   └── logger.go # 日志实现
+│   ├── metrics/       # 监控指标
+│   └── trace/        # 链路追踪
+│
+└── rpc/                # RPC服务层
+    ├── picture-rpc/   # 图片服务RPC
+    │   ├── etc/      # 配置文件
+    │   └── internal/ # 内部实现
+    │       ├── config/ # 配置结构
+    │       ├── dao/    # 数据访问
+    │       ├── logic/  # 业务逻辑
+    │       ├── server/ # 服务实现
+    │       └── svc/    # 服务上下文
+    ├── space-rpc/    # 空间服务RPC
+    │   ├── etc/     # 配置文件
+    │   └── internal/ # 内部实现
+    │       ├── config/ # 配置结构
+    │       ├── dao/    # 数据访问
+    │       ├── logic/  # 业务逻辑
+    │       ├── server/ # 服务实现
+    │       └── svc/    # 服务上下文
+    └── user-rpc/     # 用户服务RPC
+        ├── etc/     # 配置文件
+        └── internal/ # 内部实现
+            ├── config/ # 配置结构
+            ├── dao/    # 数据访问
+            ├── logic/  # 业务逻辑
+            ├── server/ # 服务实现
+            └── svc/    # 服务上下文
+
+```
 
 
 ## 服务通信
